@@ -1,5 +1,7 @@
 #!/bin/bash
 
+trap 'echo "Shutting down"; exit 0' SIGKILL SIGTERM SIGHUP SIGINT EXIT
+
 echo "Waiting for master persistent disk to be attached"
 attempt=0
 while true; do
