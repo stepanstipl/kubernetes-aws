@@ -21,7 +21,7 @@ if (! grep -q "^${DRK_DEVICE}" /etc/fstab); then
   # Mount Master Persistent Disk
   echo "Mounting master persistend Disk"
   mkdir -p ${DRK_MOUNTPOINT}
-  mkfs -t ext4 ${DRK_DEVICE}
+  mkfs.ext4 ${DRK_DEVICE}
   echo "${DRK_DEVICE} ${DRK_MOUNTPOINT} ext4 noatime  0 0" >> /etc/fstab
   mount ${DRK_MOUNTPOINT}
 fi
