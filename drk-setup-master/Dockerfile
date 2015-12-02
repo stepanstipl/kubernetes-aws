@@ -5,7 +5,7 @@ MAINTAINER Stepan Stipl
 ENV DRK_DEVICE /dev/xvdb
 ENV DRK_MOUNTPOINT /srv
 
-RUN apk add --update bash && rm -rf /var/cache/apk/*
+RUN apk add --update bash e2fsprogs && rm -rf /var/cache/apk/*
 
 COPY setup-master.sh /
 
