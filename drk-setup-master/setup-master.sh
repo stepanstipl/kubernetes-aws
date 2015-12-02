@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 echo "Waiting for master persistent disk to be attached"
 attempt=0
