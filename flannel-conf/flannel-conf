@@ -1,0 +1,88 @@
+#!/bin/bash
+APP='flannel-conf'
+
+CURL_CONNECT_TIMEOUT=30
+
+FLANNEL_CREATE_KEY=${FLANNEL_CREATE_KEY:-'false'}
+
+K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:?'$K8S_CLUSTER_NAME is not set'}
+
+K8S_MASTER_ASG_NAME=${K8S_MASTER_ASG_NAME:-'kubernetes-master'}
+
+FLANNEL_NETWORK=${FLANNEL_NETWORK:-'10.0.0.0/8'}
+FLANNEL_SUBNET_LEN=${FLANNEL_SUBNET_LEN:-'24'}
+FLANNEL_SUBNET_MIN=${FLANNEL_SUBNET_MIN:-'10.32.0.0'}
+FLANNEL_SUBNET_MAX=${FLANNEL_SUBNET_MAX:-'10.255.0.0'}
+
+FLANNEL_BACKEND_TYPE=${FLANNEL_BACKEND_TYPE:-'host_gw'}
+FLANNEL_BACKEND_PORT=${FLANNEL_BACKEND_PORT:-''}
+
+FLANNEL_ETCD_PREFIX=${FLANNEL_ETCD_PREFIX:-'/coreos.com/network'}
+FLANNEL_KEY="${FLANNEL_ETCD_PREFIX}/config"
+FLANNEL_CONFIG=${FLANNEL_CONFIG:-'/etc/flannel'}
+
+ETCD_SCHEME=${ETCD_SCHEME:-'http'}
+ETCD_PORT=${ETCD_PORT:-'2379'}
+
+
+# Get AWS AZ
+AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/placement/availability-zone)
+AWS_REGION=${AWS_AZ%%[a-z]}
+[[ -z "${AWS_REGION}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
+echo "${APP}: Found aws region - ${AWS_REGION}"
+
+# Get autoscaling group instance ids
+AWS_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --region ${AWS_REGION} --query "AutoScalingGroups[?Tags[?Key==\`KubernetesCluster\`&&Value==\`${K8S_CLUSTER_NAME}\`]].Instances[]|[?LifecycleState==\`InService\`].InstanceId")
+[[ -z "${AWS_INSTANCE_IDS}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ids" && exit 1
+echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
+
+# Get ip addresses
+ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${INSTANCE_IDS} --query "Reservations[].Instances[].join('',['${ETCD_SCHEME}://',PrivateIpAddress,'${ETCD_PORT}']) | join(',',@)" --output text)
+[[ -z "${ETCD_ENDPOINT}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ip addresses" && exit 1
+echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
+
+
+# Wait for etcd cluster
+echo "${APP}: Waiting for etcd cluster"
+attempt=0
+while true; do
+  echo "${APP}: Attempt $(($attempt+1)) "
+  if /etcdctl cluster-health; then
+    echo "${APP}: Found healthy etcd"
+    break
+  fi
+  attempt=$(($attempt+1))
+  sleep 2
+done
+
+
+# Get or try to create new flannel config in etcd
+if FLANNEL_VALUE=$(etcdctl get ${FLANNEL_KEY}); then
+  echo "${APP}: Found flannel config - ${FLANNEL_VALUE}"
+elif [[ "${FLANNEL_CREATE_KEY}" == true ]]; then
+  echo "${APP}: Unable to find flannel config key, creating one"
+
+  # Construct Flannel backend part
+  if [[-n "${FLANNEL_BACKEND_PORT}"]]; then
+    FLANNEL_BACKEND="Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
+  else
+    FLANNEL_BACKEND="Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
+  fi
+
+  # Construct Flannel value and save it to etcd
+  FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": \"${FLANNEL_SUBNET_LEN}\", \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
+  if etcdctl set ${FLANNEL_KEY} ${FLANNEL_VALUE}; then
+    echo "${APP}: Set flannel config - ${FLANNEL_VALUE}"
+  else
+    echo "${APP}: Error - failed to set flannel config in etcd"
+    exit 1
+  fi
+else
+  echo "${APP}: Error - unable to find flannel config in etcd and not allowed to create one (\$FLANNEL_CREATE_KEY)"
+  exit 1
+fi
+
+echo "${APP}: Writing flannel config to ${FLANNEL_CONFIG}"
+
+echo "FLANNELD_ETCD_ENDPOINTS=${ETCDCTL_ENDPOINT}" > ${FLANNEL_CONFIG}
+echo "FLANNELD_ETCD_PREFIX=${FLANNEL_KEY}" > ${FLANNEL_CONFIG}
