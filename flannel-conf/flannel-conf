@@ -2,6 +2,7 @@
 APP='flannel-conf'
 
 CURL_CONNECT_TIMEOUT=30
+ROS_CMD='ros config set'
 
 FLANNEL_CREATE_KEY=${FLANNEL_CREATE_KEY:-'false'}
 
@@ -19,11 +20,16 @@ FLANNEL_BACKEND_PORT=${FLANNEL_BACKEND_PORT:-''}
 
 FLANNEL_ETCD_PREFIX=${FLANNEL_ETCD_PREFIX:-'/coreos.com/network'}
 FLANNEL_KEY="${FLANNEL_ETCD_PREFIX}/config"
-FLANNEL_CONFIG=${FLANNEL_CONFIG:-'/etc/flannel'}
+FLANNEL_SUBNET_FILE=${FLANNEL_SUBNET_FILE:-'/etc/flannel/subnet'}
 
 ETCD_SCHEME=${ETCD_SCHEME:-'http'}
 ETCD_PORT=${ETCD_PORT:-'2379'}
 
+# Print message and set config
+function set_config() {
+  echo "${APP}: Setting rancher.environment.${1} to ${2}"
+  ${ROS_CMD} "rancher.environment.${1}" ${2}
+}
 
 # Get AWS AZ
 AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/placement/availability-zone)
@@ -82,7 +88,6 @@ else
   exit 1
 fi
 
-echo "${APP}: Writing flannel config to ${FLANNEL_CONFIG}"
-
-echo "FLANNELD_ETCD_ENDPOINTS=${ETCDCTL_ENDPOINT}" > ${FLANNEL_CONFIG}
-echo "FLANNELD_ETCD_PREFIX=${FLANNEL_KEY}" > ${FLANNEL_CONFIG}
+set_config FLANNELD_ETCD_ENDPOINTS ${ETCDCTL_ENDPOINT}
+set_config FLANNELD_ETCD_PREFIX ${FLANNEL_ETCD_PREFIX}
+set_config FLANNELD_SUBNET_FILE ${FLANNEL_SUBNET_FILE}

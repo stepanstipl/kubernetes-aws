@@ -1,0 +1,33 @@
+#!/bin/bash
+APP='etcd-conf'
+
+ETCD_PEERS_CONF_FILE=${ETCD_PEERS_CONF_FILE:-'/etc/etcd/etcd-peers'}
+
+ROS_CMD='ros config set'
+CURL_CONNECT_TIMEOUT=30
+
+# Print message and set config
+function set_config() {
+  echo "${APP}: Setting rancher.environment.${1} to ${2}"
+  ${ROS_CMD} "rancher.environment.${1}" ${2}
+}
+
+# Get IP form AWS
+MY_IP=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/local-ipv4)
+MY_IP=$(MY_IP:?"${APP}: Error - unable to get local IP from AWS")
+
+echo "${APP}: Found local IP - ${MY_IP}"
+
+# Source peers config file
+./${ETCD_PEERS_CONF_FILE}
+ETCD_INITIAL_CLUSTER_STATE=${ETCD_INITIAL_CLUSTER_STATE:?"${APP}: Error - \$ETCD_INITIAL_CLUSTER_STATE missing from conf file"}
+ETCD_NAME=${ETCD_NAME:?"${APP}: Error - \$ETCD_NAME missing from conf file"}
+ETCD_INITIAL_CLUSTER=${ETCD_INITIAL_CLUSTER:?"${APP}: Error - missing \$ETCD_INITIAL_CLUSTER from conf file"}
+
+# Set rancheros env
+set_config ETCD_LISTEN_PEER_URLS 'http://0.0.0.0:2380'
+set_config ETCD_LISTEN_CLIENT_URLS 'http://0.0.0.0:4001'
+set_config ETCD_INITIAL_ADVERTISE_PEER_URLS "http://${MY_IP}:2380"
+set_config ETCD_INITIAL_CLUSTER_STATE ${ETCD_INITIAL_CLUSTER_STATE}
+set_config ETCD_NAME ${ETCD_NAME}
+set_config ETCD_INITIAL_CLUSTER ${ETCD_INITIAL_CLUSTER}
