@@ -50,7 +50,7 @@ echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
 
 # Get ip addresses
 ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${INSTANCE_IDS} --query "Reservations[].Instances[].join('',['${ETCD_SCHEME}://',PrivateIpAddress,'${ETCD_PORT}']) | join(',',@)" --output text)
-[[ -z "${ETCD_ENDPOINT}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ip addresses" && exit 1
+[[ -z "${ETCDCTL_ENDPOINT}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ip addresses" && exit 1
 echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
 
 
