@@ -30,26 +30,26 @@ function set_config() {
 }
 
 # Get AWS AZ
-AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/placement/availability-zone)
+AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
 AWS_REGION=${AWS_AZ%%[a-z]}
 [[ -z "${AWS_REGION}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
 echo "${APP}: Found aws region - ${AWS_REGION}"
 
-INSTANCE_ID=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/instance-id)
+INSTANCE_ID=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/instance-id')
 [[ -z "${INSTANCE_ID}" ]] && echo "${APP}: Error - failed to get aws instance-id" && exit 1
 echo "${APP}: Found aws instance-id - ${INSTANCE_ID}"
 
-K8S_CLUSTER_NAME=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${INSTANCE_ID} --query='Reservations[].Instances[].Tags[?Key==`KubernetesCluster`].Value[]' --output text)
+K8S_CLUSTER_NAME=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids "${INSTANCE_ID}" --query='Reservations[].Instances[].Tags[?Key==`KubernetesCluster`].Value[]' --output text)
 [[ -z "${K8S_CLUSTER_NAME}" ]] && echo "${APP}: Error - failed to get Kubernetes cluster name" && exit 1
 echo "${APP}: Found Kubernetes cluster name - ${K8S_CLUSTER_NAME}"
 
 # Get autoscaling group instance ids
-AWS_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --region ${AWS_REGION} --query "AutoScalingGroups[?Tags[?Key==\`KubernetesCluster\`&&Value==\`${K8S_CLUSTER_NAME}\`]].Instances[]|[?LifecycleState==\`InService\`].InstanceId")
+AWS_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --region ${AWS_REGION} --query "AutoScalingGroups[?Tags[?Key==\`KubernetesCluster\`&&Value==\`${K8S_CLUSTER_NAME}\`]].Instances[]|[?LifecycleState==\`InService\`].InstanceId" --output text)
 [[ -z "${AWS_INSTANCE_IDS}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ids" && exit 1
 echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
 
 # Get ip addresses
-ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${INSTANCE_IDS} --query "Reservations[].Instances[].join('',['${ETCD_SCHEME}://',PrivateIpAddress,':${ETCD_PORT}']) | join(',',@)" --output text)
+ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${AWS_INSTANCE_IDS} --query "Reservations[].Instances[].join('',['${ETCD_SCHEME}://',PrivateIpAddress,':${ETCD_PORT}']) | join(',',@)" --output text)
 [[ -z "${ETCDCTL_ENDPOINT}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ip addresses" && exit 1
 echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
 export ETCDCTL_ENDPOINT
@@ -69,21 +69,21 @@ done
 
 
 # Get or try to create new flannel config in etcd
-if FLANNEL_VALUE=$(etcdctl get ${FLANNEL_KEY}); then
+if FLANNEL_VALUE=$(/etcdctl get "${FLANNEL_KEY}"); then
   echo "${APP}: Found flannel config - ${FLANNEL_VALUE}"
 elif [[ "${FLANNEL_CREATE_KEY}" == true ]]; then
   echo "${APP}: Unable to find flannel config key, creating one"
 
   # Construct Flannel backend part
   if [[-n "${FLANNEL_BACKEND_PORT}"]]; then
-    FLANNEL_BACKEND="Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
+    FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
   else
-    FLANNEL_BACKEND="Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
+    FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
   fi
 
   # Construct Flannel value and save it to etcd
   FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": \"${FLANNEL_SUBNET_LEN}\", \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
-  if etcdctl set ${FLANNEL_KEY} ${FLANNEL_VALUE}; then
+  if /etcdctl set "${FLANNEL_KEY}" "${FLANNEL_VALUE}"; then
     echo "${APP}: Set flannel config - ${FLANNEL_VALUE}"
   else
     echo "${APP}: Error - failed to set flannel config in etcd"
