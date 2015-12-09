@@ -6,8 +6,6 @@ ROS_CMD='ros config set'
 
 FLANNEL_CREATE_KEY=${FLANNEL_CREATE_KEY:-'false'}
 
-K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:?'$K8S_CLUSTER_NAME is not set'}
-
 K8S_MASTER_ASG_NAME=${K8S_MASTER_ASG_NAME:-'kubernetes-master'}
 
 FLANNEL_NETWORK=${FLANNEL_NETWORK:-'10.0.0.0/8'}
@@ -36,6 +34,14 @@ AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.25
 AWS_REGION=${AWS_AZ%%[a-z]}
 [[ -z "${AWS_REGION}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
 echo "${APP}: Found aws region - ${AWS_REGION}"
+
+INSTANCE_ID=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} http://169.254.169.254/latest/meta-data/instance-id)
+[[ -z "${INSTANCE_ID}" ]] && echo "${APP}: Error - failed to get aws instance-id" && exit 1
+echo "${APP}: Found aws instance-id - ${INSTANCE_ID}"
+
+K8S_CLUSTER_NAME=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${INSTANCE_ID} --query='Reservations[].Instances[].Tags[?Key==`KubernetesCluster`].Value[]' --output text)
+[[ -z "${K8S_CLUSTER_NAME}" ]] && echo "${APP}: Error - failed to get Kubernetes cluster name" && exit 1
+echo "${APP}: Found Kubernetes cluster name - ${K8S_CLUSTER_NAME}"
 
 # Get autoscaling group instance ids
 AWS_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --region ${AWS_REGION} --query "AutoScalingGroups[?Tags[?Key==\`KubernetesCluster\`&&Value==\`${K8S_CLUSTER_NAME}\`]].Instances[]|[?LifecycleState==\`InService\`].InstanceId")
