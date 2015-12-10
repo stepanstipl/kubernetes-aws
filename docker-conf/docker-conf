@@ -1,7 +1,7 @@
 #!/bin/bash
 APP='docker-conf'
 
-. /etc/flannel/subnet
+. /run/flannel/subnet.env
 
 FLANNEL_SUBNET=${FLANNEL_SUBNET:?'$FLANNEL_SUBNET is not set'}
 FLANNEL_MTU=${FLANNEL_MTU:?'$FLANNEL_MTU is not set'}
