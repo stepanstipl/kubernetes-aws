@@ -75,7 +75,7 @@ elif [[ "${FLANNEL_CREATE_KEY}" == true ]]; then
   echo "${APP}: Unable to find flannel config key, creating one"
 
   # Construct Flannel backend part
-  if [[-n "${FLANNEL_BACKEND_PORT}"]]; then
+  if [[ -n "${FLANNEL_BACKEND_PORT}" ]]; then
     FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
   else
     FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
