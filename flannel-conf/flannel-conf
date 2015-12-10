@@ -13,7 +13,7 @@ FLANNEL_SUBNET_LEN=${FLANNEL_SUBNET_LEN:-'24'}
 FLANNEL_SUBNET_MIN=${FLANNEL_SUBNET_MIN:-'10.32.0.0'}
 FLANNEL_SUBNET_MAX=${FLANNEL_SUBNET_MAX:-'10.255.0.0'}
 
-FLANNEL_BACKEND_TYPE=${FLANNEL_BACKEND_TYPE:-'host_gw'}
+FLANNEL_BACKEND_TYPE=${FLANNEL_BACKEND_TYPE:-'host-gw'}
 FLANNEL_BACKEND_PORT=${FLANNEL_BACKEND_PORT:-''}
 
 FLANNEL_ETCD_PREFIX=${FLANNEL_ETCD_PREFIX:-'/coreos.com/network'}
@@ -82,7 +82,7 @@ elif [[ "${FLANNEL_CREATE_KEY}" == true ]]; then
   fi
 
   # Construct Flannel value and save it to etcd
-  FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": \"${FLANNEL_SUBNET_LEN}\", \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
+  FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": ${FLANNEL_SUBNET_LEN}, \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
   if /etcdctl set "${FLANNEL_KEY}" "${FLANNEL_VALUE}"; then
     echo "${APP}: Set flannel config - ${FLANNEL_VALUE}"
   else
