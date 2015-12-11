@@ -8,4 +8,4 @@ FLANNEL_SUBNET=${FLANNEL_SUBNET:?'$FLANNEL_SUBNET is not set'}
 FLANNEL_MTU=${FLANNEL_MTU:?'$FLANNEL_MTU is not set'}
 
 echo "${APP}: Setting additional docker args - --bip=${FLANNEL_SUBNET}, --mtu=${FLANNEL_MTU}"
-ros config set rancheros.docker.extra_args "[--bip=${FLANNEL_SUBNET}, --mtu=${FLANNEL_MTU}]"
+ros config set rancher.docker.extra_args "[--bip=${FLANNEL_SUBNET}, --mtu=${FLANNEL_MTU}]"
