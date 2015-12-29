@@ -2,8 +2,8 @@ FROM alpine:3.2
 MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
-ENV ETCD_VERSION 2.2.2
-ENV ETCD_SOURCE https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz
+ENV BUILD_ETCD_VERSION 2.2.2
+ENV BUILD_ETCD_SOURCE https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz
 
 RUN apk add --update curl bash \
       && curl -L $ETCD_SOURCE -o /tmp/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz \
