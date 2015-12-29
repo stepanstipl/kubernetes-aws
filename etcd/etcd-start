@@ -1,0 +1,6 @@
+#!/bin/bash
+APP='etcd-start'
+
+: ${ETCD_NAME?'Etcd name ($ETCD_NAME) variable not set'}
+
+/etcd
