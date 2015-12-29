@@ -3,9 +3,10 @@ MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
 ENV ETCD_VERSION 2.2.2
-ENV ETCD_SOURCE https://github.com/coreos/etcd/releases/download/v$ETCD_VERSION/etcd-v$ETCD_VERSION-linux-amd64.tar.gz
+ENV ETCD_SOURCE https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz
 
 RUN apk add --update curl bash \
+      && echo $ETCD_VERSION $ETCD_SOURCE \
       && curl $ETCD_SOURCE -o /tmp/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz \
       && tar xzvf /tmp/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz -C /tmp \
       && cp /tmp/etcd-v${ETCD_VERSION}-linux-amd64/etcdctl / \
