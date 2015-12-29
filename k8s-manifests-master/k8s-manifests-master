@@ -1,0 +1,12 @@
+#!/bin/bash
+APP='k8s-manifests-master'
+
+K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
+
+MANIFESTS='kube-apiserver.yaml'
+MANIFESTS_PATH='/etc/kubernetes/manifests'
+
+for i in $MANIFESTS; do
+  echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
+  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g" "/tmp/${i}" > "${MANIFESTS_PATH}/${i}"
+done
