@@ -1,2 +1,10 @@
-# docker-rancher-kubernetes
-Docker files to run Kubernetes on top of Rancher on AWS
+# kubernetes-aws
+
+Setup HA Kubernetes cluster on AWS.
+
+Tech used:
+- Kubernetes
+- AWS
+- Rancher
+- Flannel
+- Etcd

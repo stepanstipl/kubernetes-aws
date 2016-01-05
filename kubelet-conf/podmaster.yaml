@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: podmaster
+spec:
+  hostNetwork: true
+  containers:
+    - name: scheduler-elector
+      image: gcr.io/google_containers/podmaster:1.1
+      command:
+        - /podmaster
+        - --etcd-servers=http://127.0.0.1:2379
+        - --key=scheduler
+        - --source-file=/etc/kubernetes/podmaster/kube-scheduler.yaml
+        - --dest-file=/etc/kubernetes/manifests/kube-scheduler.yaml
+      volumeMounts:
+        - mountPath: /etc/kubernetes
+          name: kube-etc
+    - name: controller-manager-elector
+      image: gcr.io/google_containers/podmaster:1.1
+      command:
+        - /podmaster
+        - --etcd-servers=http://127.0.0.1:2379
+        - --key=controller-manager
+        - --source-file=/etc/kubernetes/podmaster/kube-controller-manager.yaml
+        - --dest-file=/etc/kubernetes/manifests/kube-controller-manager.yaml
+      volumeMounts:
+        - mountPath: /etc/kubernetes
+          name: kube-etc
+  volumes:
+    - hostPath:
+        path: /etc/kubernetes
+      name: kube-etc

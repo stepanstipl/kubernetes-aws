@@ -1,0 +1,41 @@
+#!/bin/bash
+APP='kubelet-conf'
+
+K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
+K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
+
+MANIFESTS='kube-apiserver.yaml'
+MANIFESTS_PATH='/etc/kubernetes/manifests'
+
+PODMASTER_MANIFESTS=('kube-scheduler.yaml' 'kube-controller-manager.yaml')
+PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
+
+K8S_PATH='/srv/kubernetes'
+
+mkdir $MANIFESTS_PATH
+for i in $MANIFESTS; do
+  echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
+  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g" "/tmp/${i}" > "${MANIFESTS_PATH}/${i}"
+done
+
+mkdir $PODMASTER_MANIFESTS_PATH
+for i in $PODMASTER_MANIFESTS; do
+  echo "${APP}: Creating manifest ${PODMASTER_MANIFESTS_PATH}/${i}"
+  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g" "/tmp/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
+done
+
+# Get certificates
+echo "${APP}: Downloading certificates"
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/ca.pem" "${K8S_PATH}/ca.pem"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to download CA certificate" && exit 1
+
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/api.pem" "${K8S_PATH}/api.pem"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to download API Server certificate" && exit 1
+
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/api-key.pem" "${K8S_PATH}/api-key.pem"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to download API Server key" && exit 1
+
+# Touch log files, so they exists
+touch /var/log/kube-apiserver.log
+touch /var/log/kube-scheduler.log
+touch /var/log/kube-controller-manager.log
