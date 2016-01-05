@@ -54,6 +54,11 @@ ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-
 echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
 export ETCDCTL_ENDPOINT
 
+# Disable source-dest check for the instance
+echo "${APP}: Disabling source-destination check for the instance"
+aws ec2 modify-instance-attribute --region ${AWS_REGION} --instance-id "${INSTANCE_ID}" --source-dest-check "{\"Value\": false}"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to disable source-destination check for the instance" && exit 1
+
 # Wait for etcd cluster
 echo "${APP}: Waiting for etcd cluster"
 attempt=0
@@ -66,7 +71,6 @@ while true; do
   attempt=$(($attempt+1))
   sleep 2
 done
-
 
 # Get or try to create new flannel config in etcd
 if FLANNEL_VALUE=$(/etcdctl get "${FLANNEL_KEY}"); then
