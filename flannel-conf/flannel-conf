@@ -4,6 +4,8 @@ APP='flannel-conf'
 CURL_CONNECT_TIMEOUT=30
 ROS_CMD='ros config set'
 
+IPTABLES_CMD='/sbin/iptables'
+
 FLANNEL_CREATE_KEY=${FLANNEL_CREATE_KEY:-'false'}
 
 K8S_MASTER_ASG_NAME=${K8S_MASTER_ASG_NAME:-'kubernetes-master'}
@@ -58,6 +60,11 @@ export ETCDCTL_ENDPOINT
 echo "${APP}: Disabling source-destination check for the instance"
 aws ec2 modify-instance-attribute --region ${AWS_REGION} --instance-id "${INSTANCE_ID}" --source-dest-check "{\"Value\": false}"
 [[ $? -ne 0 ]] && echo "${APP}: Error - failed to disable source-destination check for the instance" && exit 1
+
+# Add iptables nat to be able to talk to outside the overlay network wolrd
+echo "${APP}: Configuring iptables"
+$IPTABLES_CMD -w -t nat -A POSTROUTING -o eth0 -j MASQUERADE \! -d "${FLANNEL_NETWORK}"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to configure iptables" && exit 1
 
 # Wait for etcd cluster
 echo "${APP}: Waiting for etcd cluster"
