@@ -10,10 +10,8 @@ RUN apk --update add python py-pip curl bash openssl \
 VOLUME /etc/kubernetes
 VOLUME /srv/kubernetes
 
-COPY kube-apiserver.yaml /tmp/
-COPY kube-scheduler.yaml /tmp/
-COPY kube-controller-manager.yaml /tmp/
-COPY podmaster.yaml /tmp/
+COPY manifests /manifests/
+COPY podmaster-manifests /podmaster-manifests/
 
 COPY kubelet-conf /
 
