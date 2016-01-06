@@ -13,6 +13,7 @@ VOLUME /srv/kubernetes
 COPY kube-apiserver.yaml /tmp/
 COPY kube-scheduler.yaml /tmp/
 COPY kube-controller-manager.yaml /tmp/
+COPY podmaster.yaml /tmp/
 
 COPY kubelet-conf /
 
