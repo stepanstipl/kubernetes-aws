@@ -23,13 +23,13 @@ done
 
 # Get certificates
 echo "${APP}: Downloading certificates"
-aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/ca.pem" "${K8S_PATH}/ca.pem"
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "ca.pem" "${K8S_PATH}/ca.pem"
 [[ $? -ne 0 ]] && echo "${APP}: Error - failed to download CA certificate" && exit 1
 
-aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/api.pem" "${K8S_PATH}/api.pem"
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "api.pem" "${K8S_PATH}/api.pem"
 [[ $? -ne 0 ]] && echo "${APP}: Error - failed to download API Server certificate" && exit 1
 
-aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/api-key.pem" "${K8S_PATH}/api-key.pem"
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "api-key.pem" "${K8S_PATH}/api-key.pem"
 [[ $? -ne 0 ]] && echo "${APP}: Error - failed to download API Server key" && exit 1
 
 # Touch log files, so they exists
