@@ -7,6 +7,7 @@ K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
 
 MANIFESTS_PATH='/etc/kubernetes/manifests'
 PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
+KUBECONFIGS_PATH='/srv/kubernetes'
 
 K8S_PATH='/srv/kubernetes'
 
@@ -22,6 +23,12 @@ for i in $(ls '/podmaster-manifests'); do
   sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g;s/{{ K8S_MASTER }}/${K8S_MASTER}/g" "/podmaster-manifests/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
 done
 
+[ -d $KUBECONFIGS_PATH ] || mkdir $KUBECONFIGS_PATH
+for i in $(ls '/kubeconfigs'); do
+  echo "${APP}: Creating kubeconfig ${KUBECONFIGS_PATH}/${i}"
+  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g;s/{{ K8S_MASTER }}/${K8S_MASTER}/g" "/kubeconfigs/${i}" > "${KUBECONFIGS_PATH}/${i}"
+done
+
 # Get certificates
 echo "${APP}: Downloading certificates"
 aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "ca.pem" "${K8S_PATH}/ca.pem"
@@ -32,6 +39,13 @@ aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "api.pem" "${K8S_PATH}/ap
 
 aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "api-key.pem" "${K8S_PATH}/api-key.pem"
 [[ $? -ne 0 ]] && echo "${APP}: Error - failed to download API Server key" && exit 1
+
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "client.pem" "${K8S_PATH}/client.pem"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to download Client certificate" && exit 1
+
+aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "client-key.pem" "${K8S_PATH}/client-key.pem"
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to download Client key" && exit 1
+
 
 # Touch log files, so they exists
 touch /var/log/kube-apiserver.log

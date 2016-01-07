@@ -17,6 +17,7 @@ spec:
           --healthz-bind-address=127.0.0.1
           --master={{ K8S_MASTER }}
           --proxy-mode=iptables
+          --kubeconfig=/srv/kube-proxy.kubeconfig
           --v2 --logtostderr=true 1>>/var/log/kube-proxy.log 2>&1
       securityContext:
         privileged: true

@@ -12,6 +12,7 @@ VOLUME /srv/kubernetes
 
 COPY manifests /manifests/
 COPY podmaster-manifests /podmaster-manifests/
+COPY kubeconfigs /kubeconfigs/
 
 COPY kubelet-conf /
 
