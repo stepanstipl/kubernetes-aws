@@ -36,3 +36,6 @@ aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${K8S_CLUSTER_ID}/api-ke
 touch /var/log/kube-apiserver.log
 touch /var/log/kube-scheduler.log
 touch /var/log/kube-controller-manager.log
+
+# Auth file
+touch /srv/kubernetes/known_tokens.csv
