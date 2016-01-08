@@ -1,0 +1,25 @@
+#!/bin/bash
+APP='kubelet-conf'
+
+K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
+K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
+
+KUBECONFIG_PATH='/kube-proxy.kubeconfig'
+K8S_PATH='/srv/kubernetes'
+
+CERTIFICATES=('ca.pem' 'client.pem' 'client-key.pem')
+
+# Copy kubeconfig to final destination
+echo "${APP}: Creating ${K8S_PATH}/kube-proxy.kubeconfig"
+cp $KUBECONFIG_PATH "${K8S_PATH}/kube-proxy.kubeconfig"
+
+# Get certificates
+echo "${APP}: Downloading certificates"
+
+for i in $CERTIFICATES; do
+  [[ -f "${K8S_PATH}/$i" ]] | aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${K8S_PATH}/${i}"
+  [[ ! -f "${K8S_PATH}/$i" ]] && echo "${APP}: Error - failed to download ${i} certificate" && exit 1
+done
+
+# Touch log files, so they exists
+touch /var/log/kube-proxy.log

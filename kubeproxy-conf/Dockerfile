@@ -10,9 +10,8 @@ RUN apk --update add python py-pip curl bash openssl \
 VOLUME /etc/kubernetes
 VOLUME /srv/kubernetes
 
-COPY manifests /manifests/
-COPY podmaster-manifests /podmaster-manifests/
+COPY kube-proxy.kubeconfig /
 
-COPY kubelet-conf /
+COPY kubeproxy-conf /
 
-ENTRYPOINT ["/kubelet-conf"]
+ENTRYPOINT ["/kubeproxy-conf"]
