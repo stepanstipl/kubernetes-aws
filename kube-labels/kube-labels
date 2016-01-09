@@ -27,7 +27,7 @@ attempt=1
 while [[ -z "$NODE" ]] || [[ "$NODE" == "null" ]]; do
   echo "${APP}: Retrieving host name, attempt ${attempt}"
   sleep 2
-  NODE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} -f --cert /srv/kubernetes/client.pem --key /srv/kubernetes/ssl/worker-key.pem --cacert /srv/kubernetes/ssl/ca.pem  \
+  NODE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} -f --cert /srv/kubernetes/client.pem --key /srv/kubernetes/client-key.pem --cacert /srv/kubernetes/ca.pem  \
          https://${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${K8S_POD} | jq -r '.spec.nodeName'
        )
   attempt=$(($attempt+1))
