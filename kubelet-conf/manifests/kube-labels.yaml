@@ -10,7 +10,7 @@ spec:
     - name: kube-labels
       image: quay.io/stepanstipl/kube-labels:latest
       env:
-        - name: POD_NAME
+        - name: K8S_POD
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
