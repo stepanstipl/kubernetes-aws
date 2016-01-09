@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-labels
+  namespace: kube-system
+spec:
+  hostNework: true
+  restartPolicy: OnFailure
+  containers:
+    - name: kube-labels
+      image: quay.io/stepanstipl/kube-labels:latest
+      env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: K8S_ROLE
+          value: {{ K8S_ROLE }}
+        - name: K8S_MASTER
+          value: {{ K8S_MASTER }}
+      volumeMounts:
+        - mountPath: /srv/kubernetes
+          name: kubesrv
+          readOnly: true
+  volumes:
+    - name: kubesrv
+      hostPath:
+        path: /srv/kubernetes

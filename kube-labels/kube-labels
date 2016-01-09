@@ -1,0 +1,58 @@
+#!/bin/bash
+APP='kube-labels'
+
+K8S_MASTER=${K8S_MASTER:?'$K8S_MASTER is not set'}
+K8S_POD=${K8S_POD:?'$K8S_POD is not set'}
+K8S_ROLE=${K8S_ROLE:?'$K8S_ROLE is not set'}
+
+CURL_CONNECT_TIMEOUT=30
+
+# Get AWS AZ
+AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
+[[ -z "${AWS_AZ}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
+echo "${APP}: Found aws region - ${AWS_AZ}"
+
+INSTANCE_ID=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/instance-id')
+[[ -z "${INSTANCE_ID}" ]] && echo "${APP}: Error - failed to get aws instance-id" && exit 1
+echo "${APP}: Found aws instance-id - ${INSTANCE_ID}"
+
+INSTANCE_TYPE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/instance-type')
+[[ -z "${INSTANCE_TYPE}" ]] && echo "${APP}: Error - failed to get aws instance-type" && exit 1
+echo "${APP}: Found aws instance-type - ${INSTANCE_TYPE}"
+
+# Wait for API server and get Node name
+attempt=0
+while [[ -z "$NODE" ]] || [[ "$NODE" == "null" ]]; do
+  echo "${APP}: Retrieving Pod name, attempt $(($attempt+1))"
+  sleep 2
+  NODE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} -f --cert /srv/kubernetes/client.pem --key /srv/kubernetes/ssl/worker-key.pem --cacert /srv/kubernetes/ssl/ca.pem  \
+         https://${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${POD_NAME} | jq -r '.spec.nodeName'
+       )
+done
+
+# Create json
+NL=$'\n'
+LABELS=""
+
+for i in $@; do
+  PA=$(echo $i | cut -f1 -d'=')
+  PB=$(echo $i | cut -f2 -d'=')
+  LABELS+="      \"${PA}\": \"${PB}\",${NL}"
+done
+
+echo "${APP}: Updating node labels"
+curl -s --cert /srv/kubernetes/client.pem --key /srv/kubernetes/client-key.pem --cacert /srv/kubernetes/ca.pem  \
+     --request PATCH -H "Content-Type: application/strategic-merge-patch+json" \
+     -d @- "https://${K8S_MASTER}/api/v1/nodes/${NODE}" <<EOF
+{
+  "metadata": {
+    "labels": {
+${TEST}      "kubernetes.io/aws-id":   "${INSTANCE_ID}",
+      "kubernetes.io/aws-type": "${INSTANCE_TYPE}",
+      "kubernetes.io/aws-az":   "${AWS_AZ}",
+      "kubernetes.io/role":   "${K8S_ROLE}"
+    }
+  }
+}
+EOF
+[[ $? -ne 0 ]] && echo "${APP}: Error - failed to update node labels" && exit 1
