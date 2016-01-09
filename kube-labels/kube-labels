@@ -7,6 +7,8 @@ K8S_ROLE=${K8S_ROLE:?'$K8S_ROLE is not set'}
 
 CURL_CONNECT_TIMEOUT=30
 
+echo "${APP}: Pod ${K8S_POD}"
+
 # Get AWS AZ
 AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
 [[ -z "${AWS_AZ}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
@@ -23,10 +25,10 @@ echo "${APP}: Found aws instance-type - ${INSTANCE_TYPE}"
 # Wait for API server and get Node name
 attempt=1
 while [[ -z "$NODE" ]] || [[ "$NODE" == "null" ]]; do
-  echo "${APP}: Retrieving Pod name, attempt ${attempt}"
+  echo "${APP}: Retrieving host name, attempt ${attempt}"
   sleep 2
   NODE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} -f --cert /srv/kubernetes/client.pem --key /srv/kubernetes/ssl/worker-key.pem --cacert /srv/kubernetes/ssl/ca.pem  \
-         https://${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${POD_NAME} | jq -r '.spec.nodeName'
+         https://${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${K8S_POD} | jq -r '.spec.nodeName'
        )
   attempt=$(($attempt+1))
 done
