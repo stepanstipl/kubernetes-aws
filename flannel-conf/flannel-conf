@@ -68,9 +68,9 @@ $IPTABLES_CMD -w -t nat -A POSTROUTING -o eth0 -j MASQUERADE \! -d "${FLANNEL_NE
 
 # Wait for etcd cluster
 echo "${APP}: Waiting for etcd cluster"
-attempt=0
+attempt=1
 while true; do
-  echo "${APP}: Attempt $(($attempt+1)) "
+  echo "${APP}: Attempt ${attempt}"
   if /etcdctl cluster-health; then
     echo "${APP}: Found healthy etcd"
     break
