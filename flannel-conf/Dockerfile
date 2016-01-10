@@ -4,7 +4,7 @@ MAINTAINER Stepan Stipl
 
 ENV ETCD_VERSION 2.2.2
 
-RUN apk --update add python py-pip curl bash \
+RUN apk --update add python py-pip curl bash iptables \
       && pip install --upgrade awscli \
       && apk del py-pip py-setuptools \
       && rm -rf /var/cache/apk/* /tmp/*

@@ -41,22 +41,23 @@ for i in $CERTIFICATES; do
   [[ ! -f "${FLANNEL_PATH}/$i" ]] && echo "${APP}: Error - failed to download ${i} certificate" && exit 1
 done
 
-if [[ "$FLANNLE_MODE" == server ]]; then
+# Get AWS AZ
+AWS_AZ=$($CURL 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
+AWS_REGION=${AWS_AZ%%[a-z]}
+AWS_REGION=${AWS_REGION:?"${APP}: Error - failed to get aws ec2 region"}
+echo "${APP}: Found aws region - ${AWS_REGION}"
 
-  # Get AWS AZ
-  AWS_AZ=$($CURL 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
-  AWS_REGION=${AWS_AZ%%[a-z]}
-  AWS_REGION=${AWS_REGION:?"${APP}: Error - failed to get aws ec2 region"}
-  echo "${APP}: Found aws region - ${AWS_REGION}"
+# Get Instance ID
+AWS_INSTANCE_ID=$($CURL 'http://169.254.169.254/latest/meta-data/instance-id')
+AWS_INSTANCE_ID=${AWS_INSTANCE_ID:?"${APP}: Error - failed to get aws instance-id"}
+echo "${APP}: Found aws instance-id - ${AWS_INSTANCE_ID}"
 
-  # Get Instance ID
-  AWS_INSTANCE_ID=$($CURL 'http://169.254.169.254/latest/meta-data/instance-id')
-  AWS_INSTANCE_ID=${AWS_INSTANCE_ID:?"${APP}: Error - failed to get aws instance-id"}
-  echo "${APP}: Found aws instance-id - ${AWS_INSTANCE_ID}"
+AWS="/usr/bin/aws --region ${AWS_REGION} --output text"
 
-  AWS="/usr/bin/aws --region ${AWS_REGION} --output text"
+# If we're running in server mode
+if [[ "$FLANNEL_MODE" == server ]]; then
 
-  # Get Autoscaling group
+    # Get Autoscaling group
   AWS_ASG=$($AWS autoscaling describe-auto-scaling-instances --instance-ids $AWS_INSTANCE_ID --query 'AutoScalingInstances[].AutoScalingGroupName' | xargs)
   AWS_ASG=${AWS_ASG:?"${APP}: Error - failed to get aws autoscaling group name"}
   echo "${APP}: Found aws autoscaling group name - ${AWS_ASG}"
