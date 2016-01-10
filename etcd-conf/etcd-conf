@@ -36,12 +36,15 @@ AWS_ASG=${AWS_ASG:?"${APP}: Error - failed to get aws autoscaling group name"}
 echo "${APP}: Found aws autoscaling group name - ${AWS_ASG}"
 
 # Get autoscaling group instance ids
-AWS_INSTANCE_IDS=$($AWS autoscaling describe-auto-scaling-groups --auto-scaling-group-names $AWS_ASG --query 'AutoScalingGroups[].Instances[]|[?LifecycleState==\`InService\`].InstanceId' | xargs)
-AWS_INSTANCE_IDS=${AWS_INSTANCE_IDS}:?"${APP}: Error - failed to get aws ec2 instance ids"}
+AWS_INSTANCE_IDS=$($AWS autoscaling describe-auto-scaling-groups --auto-scaling-group-names $AWS_ASG --query 'AutoScalingGroups[].Instances[]|[?LifecycleState==`InService`].InstanceId' | xargs)
+AWS_INSTANCE_IDS=${AWS_INSTANCE_IDS:?"${APP}: Error - failed to get aws ec2 instance ids"}
 echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
 
 # Get ip addresses
-AWS_IPS=$($AWS ec2 describe-instances --instance-ids $AWS_INSTANCE_IDS --query 'Reservations[].Instances[].PrivateIpAddress' | xargs)
+# And get IDs again, becuase ordering
+tmp=$($AWS ec2 describe-instances --instance-ids $AWS_INSTANCE_IDS --query 'Reservations[].Instances[].[InstanceId,PrivateIpAddress]')
+AWS_INSTANCE_IDS=$(echo $tmp | cut -f1 | xargs)
+AWS_IPS=$(echo $tmp | cut -f2 | xargs)
 AWS_IPS=${AWS_IPS:?"${APP}: Error - unable to get cluster IPs from AWS"}
 echo "${APP}: Found cluster IPs - ${AWS_IPS}"
 
@@ -99,7 +102,7 @@ else
     for id in $AWS_INSTANCE_IDS; do
       current_ip=$(echo $AWS_IPS | cut -f1 -d' ')
       [[ -z "${ETCD_INITIAL_CLUSTER}" ]] || ETCD_INITIAL_CLUSTER="${ETCD_INITIAL_CLUSTER},"
-      ETCD_INITIAL_CLUSTER="${ETCD_INITIAL_CLUSTER}${id}=${current_ip}"
+      ETCD_INITIAL_CLUSTER="${ETCD_INITIAL_CLUSTER}${id}=${ETCD_PROTO}://${current_ip}:${ETCD_PEER_PORT}"
       AWS_INSTANCE_IDS=$(echo $AWS_INSTANCE_IDS | cut -f'2-' -d' ')
       AWS_IPS=$(echo $AWS_IPS | cut -f'2-' -d' ')
     done
