@@ -1,4 +1,3 @@
 # etcd-conf
 
-This is intended for configuring etcd on RancherOS on AWS.
-
+Configures etcd on AWS using info form auto-scaling groups
