@@ -1,110 +1,149 @@
 #!/bin/bash
 APP='flannel-conf'
 
-CURL_CONNECT_TIMEOUT=30
-ROS_CMD='ros config set'
+K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?"${APP}: \$K8S_CLUSTER_ID is not set"}
+K8S_S3_BUCKET=${K8S_S3_BUCKET:?"${APP}:\$K8S_S3_BUCKET is not set"}
 
-IPTABLES_CMD='/sbin/iptables'
+SERVER_CERTIFICATES="flannel-server.pem flannel-server-key.pem"
+CERTIFICATES="ca.pem"
 
-FLANNEL_CREATE_KEY=${FLANNEL_CREATE_KEY:-'false'}
+ETCD_CLIENT_PORT=${ETCD_CLIENT_PORT:-'2379'}
+ETCD_PROTO=${ETCD_PROTO:-'http'}
 
-K8S_MASTER_ASG_NAME=${K8S_MASTER_ASG_NAME:-'kubernetes-master'}
+FLANNEL_PATH=${FLANNEL_CONFIG_PATH:-'/etc/flannel'}
+# Client/server
+FLANNEL_MODE=${FLANNEL_MODE:-'client'}
+FLANNEL_ENV_FILE=${FLANNEL_CONF_FILE:-"${FLANNEL_PATH}/${FLANNEL_MODE}.env"}
+FLANNEL_LISTEN=${FLANNEL_LISTEN:="0.0.0.0:8888"}
+[[ "$FLANNEL_MODE" == 'client' ]] && FLANNEL_REMOTE=${FLANNEL_REMOTE:?"${APP}: \$FLANNE_REMOTE needs to be set in client mode"}
 
 FLANNEL_NETWORK=${FLANNEL_NETWORK:-'10.0.0.0/8'}
 FLANNEL_SUBNET_LEN=${FLANNEL_SUBNET_LEN:-'24'}
 FLANNEL_SUBNET_MIN=${FLANNEL_SUBNET_MIN:-'10.32.0.0'}
 FLANNEL_SUBNET_MAX=${FLANNEL_SUBNET_MAX:-'10.255.0.0'}
-
 FLANNEL_BACKEND_TYPE=${FLANNEL_BACKEND_TYPE:-'host-gw'}
 FLANNEL_BACKEND_PORT=${FLANNEL_BACKEND_PORT:-''}
-
 FLANNEL_ETCD_PREFIX=${FLANNEL_ETCD_PREFIX:-'/coreos.com/network'}
 FLANNEL_KEY="${FLANNEL_ETCD_PREFIX}/config"
 FLANNEL_SUBNET_FILE=${FLANNEL_SUBNET_FILE:-'/run/flannel/subnet.env'}
 
-ETCD_SCHEME=${ETCD_SCHEME:-'http'}
-ETCD_PORT=${ETCD_PORT:-'2379'}
+IPTABLES_CMD='/sbin/iptables'
+CURL_OPTS=${CURL_OPTS:-'-s -f --connect-timeout 30'}
+CURL="/usr/bin/curl ${CURL_OPTS}"
 
-# Print message and set config
-function set_config() {
-  echo "${APP}: Setting rancher.environment.${1} to ${2}"
-  ${ROS_CMD} "rancher.environment.${1}" ${2}
-}
+[[ "$FLANNEL_MODE" == 'server' ]] && CERTIFICATES=$SERVER_CERTIFICATES
 
-# Get AWS AZ
-AWS_AZ=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
-AWS_REGION=${AWS_AZ%%[a-z]}
-[[ -z "${AWS_REGION}" ]] && echo "${APP}: Error - failed to get aws ec2 region" && exit 1
-echo "${APP}: Found aws region - ${AWS_REGION}"
-
-INSTANCE_ID=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} 'http://169.254.169.254/latest/meta-data/instance-id')
-[[ -z "${INSTANCE_ID}" ]] && echo "${APP}: Error - failed to get aws instance-id" && exit 1
-echo "${APP}: Found aws instance-id - ${INSTANCE_ID}"
-
-K8S_CLUSTER_NAME=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids "${INSTANCE_ID}" --query='Reservations[].Instances[].Tags[?Key==`KubernetesCluster`].Value[]' --output text)
-[[ -z "${K8S_CLUSTER_NAME}" ]] && echo "${APP}: Error - failed to get Kubernetes cluster name" && exit 1
-echo "${APP}: Found Kubernetes cluster name - ${K8S_CLUSTER_NAME}"
-
-# Get autoscaling group instance ids
-AWS_INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --region ${AWS_REGION} --query "AutoScalingGroups[?Tags[?Key==\`KubernetesCluster\`&&Value==\`${K8S_CLUSTER_NAME}\`]].Instances[]|[?LifecycleState==\`InService\`].InstanceId" --output text)
-[[ -z "${AWS_INSTANCE_IDS}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ids" && exit 1
-echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
-
-# Get ip addresses
-ETCDCTL_ENDPOINT=$(aws ec2 describe-instances --region ${AWS_REGION} --instance-ids ${AWS_INSTANCE_IDS} --query "Reservations[].Instances[].join('',['${ETCD_SCHEME}://',PrivateIpAddress,':${ETCD_PORT}']) | join(',',@)" --output text)
-[[ -z "${ETCDCTL_ENDPOINT}" ]] && echo "${APP}: Error - failed to get aws ec2 instance ip addresses" && exit 1
-echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
-export ETCDCTL_ENDPOINT
-
-# Disable source-dest check for the instance
-echo "${APP}: Disabling source-destination check for the instance"
-aws ec2 modify-instance-attribute --region ${AWS_REGION} --instance-id "${INSTANCE_ID}" --source-dest-check "{\"Value\": false}"
-[[ $? -ne 0 ]] && echo "${APP}: Error - failed to disable source-destination check for the instance" && exit 1
-
-# Add iptables nat to be able to talk to outside the overlay network wolrd
-echo "${APP}: Configuring iptables"
-$IPTABLES_CMD -w -t nat -A POSTROUTING -o eth0 -j MASQUERADE \! -d "${FLANNEL_NETWORK}"
-[[ $? -ne 0 ]] && echo "${APP}: Error - failed to configure iptables" && exit 1
-
-# Wait for etcd cluster
-echo "${APP}: Waiting for etcd cluster"
-attempt=1
-while true; do
-  echo "${APP}: Attempt ${attempt}"
-  if /etcdctl cluster-health; then
-    echo "${APP}: Found healthy etcd"
-    break
-  fi
-  attempt=$(($attempt+1))
-  sleep 2
+# Get certificates
+echo "${APP}: Downloading certificates"
+for i in $CERTIFICATES; do
+  echo "${APP}: ${i}"
+  [[ -f "${FLANNEL_PATH}/$i" ]] | (/usr/bin/aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${FLANNEL_PATH}/${i}")
+  [[ ! -f "${FLANNEL_PATH}/$i" ]] && echo "${APP}: Error - failed to download ${i} certificate" && exit 1
 done
 
-# Get or try to create new flannel config in etcd
-if FLANNEL_VALUE=$(/etcdctl get "${FLANNEL_KEY}"); then
-  echo "${APP}: Found flannel config - ${FLANNEL_VALUE}"
-elif [[ "${FLANNEL_CREATE_KEY}" == true ]]; then
-  echo "${APP}: Unable to find flannel config key, creating one"
+if [[ "$FLANNLE_MODE" == server ]]; then
 
-  # Construct Flannel backend part
-  if [[ -n "${FLANNEL_BACKEND_PORT}" ]]; then
-    FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
-  else
-    FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
+  # Get AWS AZ
+  AWS_AZ=$($CURL 'http://169.254.169.254/latest/meta-data/placement/availability-zone')
+  AWS_REGION=${AWS_AZ%%[a-z]}
+  AWS_REGION=${AWS_REGION:?"${APP}: Error - failed to get aws ec2 region"}
+  echo "${APP}: Found aws region - ${AWS_REGION}"
+
+  # Get Instance ID
+  AWS_INSTANCE_ID=$($CURL 'http://169.254.169.254/latest/meta-data/instance-id')
+  AWS_INSTANCE_ID=${AWS_INSTANCE_ID:?"${APP}: Error - failed to get aws instance-id"}
+  echo "${APP}: Found aws instance-id - ${AWS_INSTANCE_ID}"
+
+  AWS="/usr/bin/aws --region ${AWS_REGION} --output text"
+
+  # Get Autoscaling group
+  AWS_ASG=$($AWS autoscaling describe-auto-scaling-instances --instance-ids $AWS_INSTANCE_ID --query 'AutoScalingInstances[].AutoScalingGroupName' | xargs)
+  AWS_ASG=${AWS_ASG:?"${APP}: Error - failed to get aws autoscaling group name"}
+  echo "${APP}: Found aws autoscaling group name - ${AWS_ASG}"
+
+  # Get autoscaling group instance ids
+  AWS_INSTANCE_IDS=$($AWS autoscaling describe-auto-scaling-groups --auto-scaling-group-names $AWS_ASG --query 'AutoScalingGroups[].Instances[]|[?LifecycleState==`InService`].InstanceId' | xargs)
+  AWS_INSTANCE_IDS=${AWS_INSTANCE_IDS:?"${APP}: Error - failed to get aws ec2 instance ids"}
+  echo "${APP}: Found aws instance ids - ${AWS_INSTANCE_IDS}"
+
+  # Get ip addresses
+  # And get IDs again, becuase ordering
+  tmp=$($AWS ec2 describe-instances --instance-ids $AWS_INSTANCE_IDS --query 'Reservations[].Instances[].[InstanceId,PrivateIpAddress]')
+  AWS_INSTANCE_IDS=$(echo $tmp | cut -f1 | xargs)
+  AWS_IPS=$(echo $tmp | cut -f2 | xargs)
+  AWS_IPS=${AWS_IPS:?"${APP}: Error - unable to get cluster IPs from AWS"}
+  echo "${APP}: Found cluster IPs - ${AWS_IPS}"
+
+  # Construct ETCDCTL url
+  for current_ip in $AWS_IPS; do
+    [[ -z "${ETCDCTL_ENDPOINT}" ]] || ETCDCTL_ENDPOINT="${ETCDCTL_ENDPOINT},"
+    ETCDCTL_ENDPOINT="${ETCDCTL_ENDPOINT}${ETCD_PROTO}://${current_ip}:${ETCD_CLIENT_PORT}"
+  done
+  ETCDCTL_ENDPOINT=${ETCDCTL_ENDPOINT:?"${APP}: Error - failed to construct etcdctl endpoint addresses"}
+  echo "${APP}: Found etcd endpoints - ${ETCDCTL_ENDPOINT}"
+
+  # Wait for etcd cluster
+  echo "${APP}: Waiting for etcd cluster"
+  attempt=1
+  while true; do
+    echo "${APP}: Attempt ${attempt}"
+    if /etcdctl cluster-health; then
+      echo "${APP}: Found healthy etcd"
+      break
+    fi
+    attempt=$(($attempt+1))
+    sleep 2
+  done
+
+  # Get or try to create new flannel config in etcd
+  if FLANNEL_VALUE=$(/etcdctl get "${FLANNEL_KEY}"); then
+    echo "${APP}: Found flannel config - ${FLANNEL_VALUE}"
+  else 
+    echo "${APP}: Unable to find flannel config key, creating one"
+
+    # Construct Flannel backend part
+    if [[ -n "${FLANNEL_BACKEND_PORT}" ]]; then
+      FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\", \"Port\": ${FLANNEL_BACKEND_PORT}"
+    else
+      FLANNEL_BACKEND="\"Backend\": {\"Type\": \"${FLANNEL_BACKEND_TYPE}\"}"
+    fi
+
+    # Construct Flannel value and save it to etcd
+    FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": ${FLANNEL_SUBNET_LEN}, \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
+    if /etcdctl set "${FLANNEL_KEY}" "${FLANNEL_VALUE}"; then
+      echo "${APP}: Set flannel config - ${FLANNEL_VALUE}"
+    else
+      echo "${APP}: Error - failed to set flannel config in etcd"
+      exit 1
+    fi
   fi
 
-  # Construct Flannel value and save it to etcd
-  FLANNEL_VALUE="{ \"Network\": \"${FLANNEL_NETWORK}\", \"SubnetLen\": ${FLANNEL_SUBNET_LEN}, \"SubnetMin\": \"${FLANNEL_SUBNET_MIN}\", \"SubnetMax\": \"${FLANNEL_SUBNET_MAX}\", ${FLANNEL_BACKEND} }"
-  if /etcdctl set "${FLANNEL_KEY}" "${FLANNEL_VALUE}"; then
-    echo "${APP}: Set flannel config - ${FLANNEL_VALUE}"
-  else
-    echo "${APP}: Error - failed to set flannel config in etcd"
-    exit 1
-  fi
+  cat << EOF > $FLANNEL_ENV_FILE
+FLANNELD_ETCD_ENDPOINTS=${ETCDCTL_ENDPOINT}
+FLANNELD_ETCD_PREFIX=${FLANNEL_ETCD_PREFIX}
+FLANNELD_LISTEN=${FLANNEL_LISTEN}
+FLANNELD_REMOTE_CERTFILE=${FLANNEL_PATH}/flannel-server.pem
+FLANNELD_REMOTE_KEYFILE=${FLANNEL_PATH}/flannel-server-key.pem
+EOF
+
 else
-  echo "${APP}: Error - unable to find flannel config in etcd and not allowed to create one (\$FLANNEL_CREATE_KEY)"
-  exit 1
+  # Disable source-dest check for the instance
+  echo "${APP}: Disabling source-destination check for the instance"
+  $AWS ec2 modify-instance-attribute --instance-id "${AWS_INSTANCE_ID}" --source-dest-check "{\"Value\": false}"
+  [[ $? -ne 0 ]] && echo "${APP}: Error - failed to disable source-destination check for the instance" && exit 1
+
+  # Add iptables nat to be able to talk to outside the overlay network world
+  echo "${APP}: Configuring iptables"
+  $IPTABLES_CMD -w -t nat -A POSTROUTING -o eth0 -j MASQUERADE \! -d "${FLANNEL_NETWORK}"
+  [[ $? -ne 0 ]] && echo "${APP}: Error - failed to configure iptables" && exit 1
+
+  cat << EOF > $FLANNEL_ENV_FILE
+FLANNELD_REMOTE=${FLANNEL_REMOTE}
+FLANNELD_REMOTE_CAFILE=${FLANNEL_PATH}/ca.pem
+FLANNELD_SUBNET_FILE=${FLANNEL_SUBNET_FILE}
+EOF
+
 fi
 
-set_config FLANNELD_ETCD_ENDPOINTS ${ETCDCTL_ENDPOINT}
-set_config FLANNELD_ETCD_PREFIX ${FLANNEL_ETCD_PREFIX}
-set_config FLANNELD_SUBNET_FILE ${FLANNEL_SUBNET_FILE}
+echo "${APP}: Done. Written env config file to ${ETCD_ENV_FILE}"
+cat $ETCD_ENV_FILE 
