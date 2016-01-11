@@ -28,7 +28,7 @@ while [[ -z "$NODE" ]] || [[ "$NODE" == "null" ]]; do
   echo "${APP}: Retrieving host name, attempt ${attempt}"
   sleep 2
   NODE=$(curl -s --connect-timeout ${CURL_CONNECT_TIMEOUT} -f --cert /srv/kubernetes/client.pem --key /srv/kubernetes/client-key.pem --cacert /srv/kubernetes/ca.pem  \
-         https://${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${K8S_POD} | jq -r '.spec.nodeName'
+         ${K8S_MASTER}/api/v1/namespaces/kube-system/pods/${K8S_POD} | jq -r '.spec.nodeName'
        )
   attempt=$(($attempt+1))
 done
@@ -46,7 +46,7 @@ done
 echo "${APP}: Updating node labels"
 curl -s --cert /srv/kubernetes/client.pem --key /srv/kubernetes/client-key.pem --cacert /srv/kubernetes/ca.pem  \
      --request PATCH -H "Content-Type: application/strategic-merge-patch+json" \
-     -d @- "https://${K8S_MASTER}/api/v1/nodes/${NODE}" <<EOF
+     -d @- "${K8S_MASTER}/api/v1/nodes/${NODE}" <<EOF
 {
   "metadata": {
     "labels": {
