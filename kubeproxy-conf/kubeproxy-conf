@@ -4,14 +4,15 @@ APP='kubelet-conf'
 K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
 K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
 
-KUBECONFIG_PATH='/kube-proxy.kubeconfig'
+KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
 K8S_PATH='/srv/kubernetes'
 
 CERTIFICATES="ca.pem client.pem client-key.pem"
 
 # Copy kubeconfig to final destination
-echo "${APP}: Creating ${K8S_PATH}/kube-proxy.kubeconfig"
-cp $KUBECONFIG_PATH "${K8S_PATH}/kube-proxy.kubeconfig"
+[[ -d "${KUBECONFIGS_PATH}" ]] || mkdir ${KUBECONFIGS_PATH}
+echo "${APP}: Creating ${KUBECONFIGS_PATH}/kube-proxy.kubeconfig"
+cp '/kube-proxy.kubeconfig' "${KUBECONFIGS_PATH}/kube-proxy.kubeconfig"
 
 # Get certificates
 echo "${APP}: Downloading certificates"
