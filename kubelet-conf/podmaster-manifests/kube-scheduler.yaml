@@ -8,11 +8,16 @@ spec:
   containers:
     - name: kube-scheduler
       image: gcr.io/google_containers/hyperkube:v1.1.3
+      env:
+        - name: K8S_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
       command:
         - /bin/sh
         - -c
         - /hyperkube scheduler
-          --address=0.0.0.0 --port=10251
+          --address={{ K8S_IP }} --port=10251
           --master={{ K8S_MASTER }}
           --kubeconfig=/srv/kubernetes/kubeconfigs/kube-scheduler.kubeconfig
           --v=2 --logtostderr=true 1>>/var/log/kube-scheduler.log 2>&1
