@@ -15,13 +15,13 @@ K8S_PATH='/srv/kubernetes'
 mkdir $MANIFESTS_PATH
 for i in $(ls '/manifests'); do
   echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
-  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g;s/{{ K8S_MASTER }}/${K8S_MASTER}/g;s/{{ K8S_ROLE }}/${K8S_ROLE}/g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
+  sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
 done
 
 mkdir $PODMASTER_MANIFESTS_PATH
 for i in $(ls '/podmaster-manifests'); do
   echo "${APP}: Creating manifest ${PODMASTER_MANIFESTS_PATH}/${i}"
-  sed "s/{{ K8S_CLUSTER_ID }}/${K8S_CLUSTER_ID}/g;s/{{ K8S_MASTER }}/${K8S_MASTER}/g;s/{{ K8S_ROLE }}/${K8S_ROLE}/g" "/podmaster-manifests/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
+  sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/podmaster-manifests/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
 done
 
 # Get certificates
