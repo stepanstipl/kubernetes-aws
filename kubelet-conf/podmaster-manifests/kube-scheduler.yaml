@@ -23,9 +23,15 @@ spec:
         initialDelaySeconds: 15
         timeoutSeconds: 1
       volumeMounts:
+        - mountPath: /srv/kubernetes
+          name: srvkube
+          readOnly: true
         - mountPath: /var/log/kube-scheduler.log
           name: logfile
   volumes:
+    - hostPath:
+        path: /srv/kubernetes
+      name: srvkube
     - hostPath:
         path: /var/log/kube-scheduler.log
       name: logfile
