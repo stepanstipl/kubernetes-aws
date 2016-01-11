@@ -63,4 +63,4 @@ $CURL --cert /srv/kubernetes/client.pem --key /srv/kubernetes/client-key.pem --c
   }
 }
 EOF
-[[ "$?" -eq 0 ]] || { echo "${APP}: Error - failed to update node labels"; exit 1 }
+[[ "$?" -eq 0 ]] || { echo "${APP}: Error - failed to update node labels"; exit 1; }
