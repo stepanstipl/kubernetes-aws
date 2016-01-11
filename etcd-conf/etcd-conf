@@ -83,7 +83,7 @@ if [[ -n "$ETCD_EXISTING_PEER_URLS" && "$ETCD_EXISTING_PEER_NAMES" != *"$AWS_INS
   for i in $MISSING_PEERS; do
     echo "${APP}: Removing bad peer ${i}"
     status=$($CURL -w %{http_code} "${ETCD_GOOD_MEMBER_URL}/v2/members/${i}" -XDELETE)
-    [[ $status != '204' ]] && echo "${APP}: ERROR - failed to remove bad peer: $i" && exit 1
+    [[ $status == '204' ]] || { echo "${APP}: ERROR - failed to remove bad peer: $i"; exit 1 }
   done
 
   # Get current good peers after cleanup
@@ -93,7 +93,7 @@ if [[ -n "$ETCD_EXISTING_PEER_URLS" && "$ETCD_EXISTING_PEER_NAMES" != *"$AWS_INS
   # Joining existing cluster 
   echo "${APP}: Adding instance to existing cluster"
   status=$($CURL -w %{http_code} -o /dev/null -XPOST "$ETCD_GOOD_MEMBER_URL/v2/members" -H "Content-Type: application/json" -d "{\"peerURLs\": [\"${ETCD_PROTO}://${AWS_IP}:${ETCD_PEER_PORT}\"], \"name\": \"${AWS_INSTANCE_ID}\"}")
-  [[ $status != '204' && $status != '409' ]] && echo "${APP}: ERROR - unable to add instance to exisitng cluster" && exit 1
+  [[ $status == '204' || $status == '409' ]] || { echo "${APP}: ERROR - unable to add instance to exisitng cluster"; exit 1 }
 
   ETCD_INITIAL_CLUSTER_STATE='existing'
 

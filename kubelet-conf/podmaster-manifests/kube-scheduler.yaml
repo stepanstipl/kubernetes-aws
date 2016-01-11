@@ -13,7 +13,8 @@ spec:
         - -c
         - /hyperkube scheduler
           --address=0.0.0.0 --port=10251
-          --master=127.0.0.1:8080
+          --master={{ K8S_MASTER }}
+          --kubeconfig=/srv/kubernetes/kubeconfigs/kube-scheduler.kubeconfig
           --v=2 --logtostderr=true 1>>/var/log/kube-scheduler.log 2>&1
       livenessProbe:
         httpGet:

@@ -37,8 +37,8 @@ CURL="/usr/bin/curl ${CURL_OPTS}"
 echo "${APP}: Downloading certificates"
 for i in $CERTIFICATES; do
   echo "${APP}: ${i}"
-  [[ -f "${FLANNEL_PATH}/$i" ]] | (/usr/bin/aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${FLANNEL_PATH}/${i}")
-  [[ ! -f "${FLANNEL_PATH}/$i" ]] && echo "${APP}: Error - failed to download ${i} certificate" && exit 1
+  [[ -f "${FLANNEL_PATH}/$i" ]] || (/usr/bin/aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${FLANNEL_PATH}/${i}")
+  [[ -f "${FLANNEL_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i} certificate"; exit 1 }
 done
 
 # Get AWS AZ
@@ -131,12 +131,12 @@ else
   # Disable source-dest check for the instance
   echo "${APP}: Disabling source-destination check for the instance"
   $AWS ec2 modify-instance-attribute --instance-id "${AWS_INSTANCE_ID}" --source-dest-check "{\"Value\": false}"
-  [[ $? -ne 0 ]] && echo "${APP}: Error - failed to disable source-destination check for the instance" && exit 1
+  [[ $? -eq 0 ]] || { echo "${APP}: Error - failed to disable source-destination check for the instance"; exit 1 }
 
   # Add iptables nat to be able to talk to outside the overlay network world
   echo "${APP}: Configuring iptables"
   $IPTABLES_CMD -w -t nat -A POSTROUTING -o eth0 -j MASQUERADE \! -d "${FLANNEL_NETWORK}"
-  [[ $? -ne 0 ]] && echo "${APP}: Error - failed to configure iptables" && exit 1
+  [[ $? -eq 0 ]] || { echo "${APP}: Error - failed to configure iptables"; exit 1 }
 
   cat << EOF > $FLANNEL_ENV_FILE
 FLANNELD_REMOTE=${FLANNEL_REMOTE}
