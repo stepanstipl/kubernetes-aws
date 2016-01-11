@@ -13,6 +13,8 @@ VOLUME /srv/kubernetes
 COPY manifests /manifests/
 COPY podmaster-manifests /podmaster-manifests/
 
+COPY kubelet.kubeconfig /srv/
+
 COPY kubelet-conf /
 
 ENTRYPOINT ["/kubelet-conf"]
