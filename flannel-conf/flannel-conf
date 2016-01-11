@@ -146,5 +146,5 @@ EOF
 
 fi
 
-echo "${APP}: Done. Written env config file to ${ETCD_ENV_FILE}"
-cat $ETCD_ENV_FILE 
+echo "${APP}: Done. Written env config file to ${FLANNEL_ENV_FILE}"
+cat $FLANNEL_ENV_FILE 
