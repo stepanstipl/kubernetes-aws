@@ -9,7 +9,7 @@ MANIFESTS_PATH='/etc/kubernetes/manifests'
 PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
 KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
 
-CERTIFICATES="ca.pem client.pem client-key.pem api.pem api-key.pem"
+DOWNLOAD_FILES="ca.pem client.pem client-key.pem api.pem api-key.pem kubelet"
 
 K8S_PATH='/srv/kubernetes'
 
@@ -32,12 +32,15 @@ for i in $(ls '/kubeconfigs'); do
 done
 
 # Get certificates
-echo "${APP}: Downloading certificates"
-for i in $CERTIFICATES; do
+echo "${APP}: Downloading files"
+for i in $DOWNLOAD_FILES; do
   echo "${APP}: ${i}"
   [[ -f "${K8S_PATH}/$i" ]] || aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${K8S_PATH}/${i}"
-  [[ -f "${K8S_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i} certificate"; exit 1; }
+  [[ -f "${K8S_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i}"; exit 1; }
 done
+
+# Make sure kubelet is executable
+chmod a+x "${K8S_PATH}/kubelet"
 
 # Touch log files, so they exists
 touch /var/log/kube-apiserver.log
