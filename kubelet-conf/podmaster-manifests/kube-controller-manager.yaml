@@ -8,16 +8,11 @@ spec:
   containers:
     - name: kube-controller-manager
       image: gcr.io/google_containers/hyperkube:v1.1.3
-      env:
-        - name: K8S_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
       command:
         - /bin/sh
         - -c
         - /hyperkube controller-manager
-          --address={{ K8S_IP }}
+          --address=0.0.0.0
           --port=10252
           --master={{ K8S_MASTER }}
           --kubeconfig=/srv/kubernetes/kubeconfigs/kube-controller-manager.kubeconfig
