@@ -12,17 +12,12 @@ KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
 KUBECONFIGS='kubelet.kubeconfig'
 
 DOWNLOAD_FILES="ca.pem client.pem client-key.pem kubelet"
+MANIFESTS="kube-labels.yaml"
 
 K8S_PATH='/srv/kubernetes'
 
-mkdir $MANIFESTS_PATH
 
 if [[ "$K8S_ROLE" == 'master' ]]; then
-
-  for i in $(ls '/manifests'); do
-    echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
-    sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
-  done
 
   mkdir $PODMASTER_MANIFESTS_PATH
   for i in $(ls '/podmaster-manifests'); do
@@ -31,6 +26,7 @@ if [[ "$K8S_ROLE" == 'master' ]]; then
   done
 
   KUBECONFIGS=$(ls '/kubeconfigs')
+  MANIFESTS=$(ls '/manifests');
   DOWNLOAD_FILES="$DOWNLOAD_FILES api.pem api-key.pem"
 
   # Touch log files, so they exists
@@ -42,6 +38,12 @@ if [[ "$K8S_ROLE" == 'master' ]]; then
   touch /srv/kubernetes/known_tokens.csv
 
 fi
+
+mkdir $MANIFESTS_PATH
+for i in $MANIFESTS; do
+  echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
+  sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
+done
 
 mkdir $KUBECONFIGS_PATH
 for i in $KUBECONFIGS; do
