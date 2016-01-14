@@ -18,6 +18,7 @@ spec:
           --cluster-name={{ K8S_CLUSTER_ID }}
           --etcd-servers=http://127.0.0.1:2379
           --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
+          --runtime-config=extensions/v1beta1/deployments=true,extensions/v1beta1/daemonsets=true
           --service-cluster-ip-range=10.0.0.0/16
           --token-auth-file=/srv/kubernetes/known_tokens.csv
           --client-ca-file=/srv/kubernetes/ca.pem
