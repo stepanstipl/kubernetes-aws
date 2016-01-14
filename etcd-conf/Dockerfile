@@ -1,4 +1,4 @@
-FROM alpine:3.2
+FROM alpine:3.3
 MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 

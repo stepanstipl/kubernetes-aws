@@ -1,8 +1,8 @@
-FROM alpine:3.2
+FROM alpine:3.3
 MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
-ENV ETCD_VERSION 2.2.2
+ENV ETCD_VERSION 2.2.4
 
 RUN apk --update add python py-pip curl bash iptables \
       && pip install --upgrade awscli \
