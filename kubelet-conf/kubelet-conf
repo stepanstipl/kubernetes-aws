@@ -27,7 +27,7 @@ if [[ "$K8S_ROLE" == 'master' ]]; then
 
   KUBECONFIGS=$(ls '/kubeconfigs')
   MANIFESTS=$(ls '/manifests');
-  DOWNLOAD_FILES="$DOWNLOAD_FILES api.pem api-key.pem"
+  DOWNLOAD_FILES="$DOWNLOAD_FILES kubernetes.pem kubernetes-key.pem"
 
   # Touch log files, so they exists
   touch /var/log/kube-apiserver.log
