@@ -2,9 +2,6 @@ FROM busybox:1.24-glibc
 
 MAINTAINER Stepan Stipl
 
-RUN apk --update add bash \
-      && rm -rf /var/cache/apk/* /tmp/*
-
 COPY _artifacts/influx /
 COPY _artifacts/influxd /
 
