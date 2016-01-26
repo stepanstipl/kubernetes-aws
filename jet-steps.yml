@@ -1,0 +1,12 @@
+- name: Compile InfluxDB
+  service: influxdb_compile
+  command: /source/build.sh 
+  #- name: Make influxdb container to be built
+  #  service: influxdb_deploy
+  #  command: /true
+- name: Push to Quay.io
+  service: influxdb_deploy
+  type: push
+  image_name: quay.io/stepanstipl/influxdb
+  registry: quay.io
+  encrypted_dockercfg_path: dockercfg.encrypted

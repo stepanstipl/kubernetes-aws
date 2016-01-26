@@ -1,0 +1,90 @@
+[reporting]
+  reporting-disabled = true
+
+[meta]
+  dir = "/srv/influxdb/meta"
+  hostname = "localhost"
+  bind-address = ":8088"
+  retention-autocreate = true
+  election-timeout = "1s"
+  heartbeat-timeout = "1s"
+  leader-lease-timeout = "500ms"
+  commit-timeout = "50ms"
+  cluster-tracing = false
+  raft-promotion-enabled = true
+  logging-enabled = true
+
+[data]
+  dir = "/srv/influxdb/data"
+  max-wal-size = 104857600
+  wal-flush-interval = "10m0s"
+  wal-partition-flush-delay = "2s"
+  wal-dir = "/srv/influxdb/wal"
+  wal-logging-enabled = true
+  query-log-enabled = true
+  cache-max-memory-size = 524288000
+  cache-snapshot-memory-size = 26214400
+  cache-snapshot-write-cold-duration = "1h"
+  compact-min-file-count = 3
+  compact-full-write-cold-duration = "24h"
+  max-points-per-block = 1000
+
+[hinted-handoff]
+  enabled = true
+  dir = "/srv/influxdb/hh"
+  max-size = 1073741824
+  max-age = "168h0m0s"
+
+[cluster]
+  shard-writer-timeout = "5s"
+  write-timeout = "10s"
+
+[retention]
+  enabled = true
+  check-interval = "30m0s"
+
+[shard-precreation]
+  enabled = true
+  check-interval = "10m0s"
+  advance-period = "30m0s"
+
+[monitor]
+  store-enabled = true
+  store-database = "_internal"
+  store-interval = "10s"
+
+[admin]
+  enabled = true
+  bind-address = ":8083"
+  https-enabled = false
+  https-certificate = "/etc/ssl/influxdb.pem"
+
+[subscriber]
+  enabled = false
+
+[http]
+  enabled = true
+  bind-address = ":8086"
+  auth-enabled = false
+  log-enabled = true
+  write-tracing = false
+  pprof-enabled = false
+  https-enabled = false
+  https-certificate = "/etc/ssl/influxdb.pem"
+
+[graphite]
+  enabled = false
+
+[collectd]
+  enabled = false
+
+[opentsdb]
+  enabled = false
+
+[udp]
+  enabled = false
+
+[continuous_queries]
+  log-enabled = true
+  enabled = true
+  run-interval = "1s"
