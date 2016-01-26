@@ -12,7 +12,7 @@ COPY _artifacts/influxdb-discovery /
 
 COPY _artifacts/types.db /usr/share/collectd/
 
-COPY _artifacts/influxdb.sh /
+COPY influxdb.sh /
 
 COPY influxdb.toml /etc/influxdb.toml
 
