@@ -1,3 +1,12 @@
 FROM golang:1.5.3-wheezy
 
+RUN apt-get update && apt-get install git mercurial
+
+RUN export GOPATH=$HOME/go-tools && \
+      mkdir -p $GOPATH && \
+      go get github.com/tools/godep && \
+      export GOPATH=$HOME/go-tools && \
+      export PATH=$PATH:$GOPATH/bin && \
+      export GOPATH=/go
+
 CMD /bin/bash
