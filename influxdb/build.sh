@@ -24,6 +24,7 @@ tar -xvzf "v${K8S_VERSION}.tar.gz"
 mkdir -p "${GOPATH}/src/k8s.io"
 mv "kubernetes-1.1.4" "${GOPATH}/src/k8s.io/kubernetes"
 
+# Build influxdb-discovery
 cd "${GOPATH}/src/k8s.io/kubernetes"
 cp /source/influxdb-discovery.go ./
-~/go-tools/bin/godep go build -v influxdb-discovery.go -o "${OUTPUT_DIR}/influxdb-discovery"
+~/go-tools/bin/godep go build -v -o "${OUTPUT_DIR}/influxdb-discovery" influxdb-discovery.go
