@@ -58,6 +58,7 @@ func main() {
 	var influxdb *api.Service
   // Wait for the service to come up
 	for t := time.Now(); time.Since(t) < WAITFOR_MAX*time.Minute; time.Sleep(10 * time.Second) {
+    glog.Infof("Waiting for service moniroting-influxdb %s", time.Since(t))
 		influxdb, err = c.Services(api.NamespaceSystem).Get("monitoring-influxdb")
 		if err == nil {
 			break
@@ -74,6 +75,7 @@ func main() {
 	// Wait for some endpoints.
 	count := 0
 	for t := time.Now(); time.Since(t) < time.Duration(rand.Intn(WAITFOR_MAX-WAITFOR_MIN)+WAITFOR_MIN)*time.Minute; time.Sleep(10 * time.Second) {
+    glog.Infof("Waiting for service endpoints %s", time.Since(t))
 		endpoints, err = c.Endpoints(api.NamespaceSystem).Get("monitoring-influxdb")
 		if err != nil {
 			continue
