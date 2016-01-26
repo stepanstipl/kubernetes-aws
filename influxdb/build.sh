@@ -21,12 +21,7 @@ wget -O "${OUTPUT_DIR}/types.db" "https://raw.githubusercontent.com/collectd/col
 wget "https://github.com/kubernetes/kubernetes/releases/download/v${K8S_VERSION}/kubernetes.tar.gz"
 tar -xvzf kubernetes.tar.gz
 mkdir -p "${GOPATH}/src/k8s.io"
-cp -r "kubernetes-${K8S_VERSION}" "${GOPATH}/src/k8s.io/"
+mv "kubernetes" "${GOPATH}/src/k8s.io/"
 
-
-go get -u k8s.io/kubernetes
-cd $GOPATH/src/k8s.io/kubernetes
-
-cd "kubernetes-${K8S_VERSION}"
 cd "${GOPATH}/src/k8s.io/kubernetes"
 ~/go-tools/bin/godep go build -v /source/influxdb-discovery.go -o "${OUTPUT_DIR}/influxdb-discovery"
