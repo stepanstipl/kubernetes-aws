@@ -1,4 +1,4 @@
-FROM alpine:3.3
+FROM busybox:1.24-glibc
 
 MAINTAINER Stepan Stipl
 

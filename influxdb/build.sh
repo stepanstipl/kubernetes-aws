@@ -5,21 +5,13 @@ INFLUXDB_VERSION='0.10.0-beta2'
 INFLUXDB_PACKAGE="github.com/influxdb/influxdb"
 OUTPUT_DIR='/artifacts'
 
-# Clone influxdb
-go get $INFLUXDB_PACKAGE
-cd "${GOPATH}/src/${INFLUXDB_PACKAGE}"
-go get -v -u -f -t ./...
-git checkout -q "v${INFLUXDB_VERSION}"
-go build -v ./...
-# CGO_ENABLED=0 go build -a -ldflags '-s' --tags netgo --installsuffix netgo -v ./...
-#go build -a --ldflags '-linkmode external -extldflags "-static"' -v $INFLUXDB_PACKAGE
 
-cp /go/bin/influxd /go/bin/influx "${OUTPUT_DIR}/"
+# Get influxdb
+cd /tmp
+curl -s -L -o /tmp/influxdb.tar.gz https://influxdb.s3.amazonaws.com/influxdb-v0.10.0-beta2_linux_amd64.tar.gz
+tar xvzf /tmp/influxdb.tar.gz ./usr/bin/influxd ./usr/bin/influx
 
-# Copy requiered libs
-# mkdir -p "${OUTPUT_DIR}/lib"
-# cp /lib/ld-musl-x86_64.so.1 "${OUTPUT_DIR}/lib/"
-# cp /lib/libc.musl-x86_64.so.1 "${OUTPUT_DIR}/lib/" 
+cp ./usr/bin/influxd ./usr/bin/influx "${OUTPUT_DIR}/"
 
 # Needed for collectd
 wget -O "${OUTPUT_DIR}/types.db" "https://raw.githubusercontent.com/collectd/collectd/master/src/types.db"
