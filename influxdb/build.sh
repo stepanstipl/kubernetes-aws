@@ -24,4 +24,5 @@ mkdir -p "${GOPATH}/src/k8s.io"
 mv "kubernetes" "${GOPATH}/src/k8s.io/"
 
 cd "${GOPATH}/src/k8s.io/kubernetes"
-~/go-tools/bin/godep go build -v /source/influxdb-discovery.go -o "${OUTPUT_DIR}/influxdb-discovery"
+cp /source/influxdb-discovery.go ./
+~/go-tools/bin/godep go build -v influxdb-discovery.go -o "${OUTPUT_DIR}/influxdb-discovery"
