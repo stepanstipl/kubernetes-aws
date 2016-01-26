@@ -1,4 +1,5 @@
-FROM busybox:1.24-glibc
+FROM progrium/busybox
+# busybox:1.24-glibc
 
 MAINTAINER Stepan Stipl
 
