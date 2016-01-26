@@ -1,3 +1,5 @@
-FROM golang:1.5.3-wheezy
+FROM golang:1.5.3
+
+RUN apt-get install -y g++
 
 CMD /bin/bash
