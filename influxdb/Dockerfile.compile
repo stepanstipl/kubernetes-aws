@@ -1,4 +1,4 @@
-FROM golang:alpine-1.5.3
+FROM golang:1.5.3-alpine
 
 RUN apk add --update bash git mercurial
 
