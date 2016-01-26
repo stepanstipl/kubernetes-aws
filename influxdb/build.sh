@@ -1,9 +1,9 @@
 #!/bin/bash -x
 
 PROJECT='influxdb'
-VERSION='0.10.0-beta2'
-OUTPUT_DIR='/artifacts'
+INFLUXDB_VERSION='0.10.0-beta2'
 INFLUXDB_PACKAGE="github.com/influxdb/influxdb"
+OUTPUT_DIR='/artifacts'
 
 # Clone influxdb
 go get $INFLUXDB_PACKAGE
