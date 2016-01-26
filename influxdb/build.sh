@@ -22,7 +22,7 @@ wget -O "${OUTPUT_DIR}/types.db" "https://raw.githubusercontent.com/collectd/col
 wget "https://github.com/kubernetes/kubernetes/archive/v${K8S_VERSION}.tar.gz"
 tar -xvzf "v${K8S_VERSION}.tar.gz"
 mkdir -p "${GOPATH}/src/k8s.io"
-mv "kubernetes-1.1.4" "${GOPATH}/src/k8s.io/"
+mv "kubernetes-1.1.4" "${GOPATH}/src/k8s.io/kubernetes"
 
 cd "${GOPATH}/src/k8s.io/kubernetes"
 cp /source/influxdb-discovery.go ./
