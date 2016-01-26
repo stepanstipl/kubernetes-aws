@@ -72,7 +72,7 @@
   https-enabled = false
   https-certificate = "/etc/ssl/influxdb.pem"
 
-[graphite]
+[[graphite]]
   enabled = false
 
 [collectd]
@@ -81,7 +81,7 @@
 [opentsdb]
   enabled = false
 
-[udp]
+[[udp]]
   enabled = false
 
 [continuous_queries]
