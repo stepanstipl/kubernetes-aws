@@ -16,8 +16,13 @@ cp ./usr/bin/influxd ./usr/bin/influx "${OUTPUT_DIR}/"
 # Needed for collectd
 wget -O "${OUTPUT_DIR}/types.db" "https://raw.githubusercontent.com/collectd/collectd/master/src/types.db"
 
+# Get kubernetes
+go get -u k8s.io/kubernetes
+cd $GOPATH/src/k8s.io/kubernetes
+$GOPATH/bin/godep restore
+
 # Build InfluxDB discovery
 cd /source
-go get -v ./...
-go build -v ./influxdb-discovery.go
+godep go get -v ./...
+godep go build -v ./influxdb-discovery.go
 cp ./influxdb-discovery "${OUTPUT_DIR}/"
