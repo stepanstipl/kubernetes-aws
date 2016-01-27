@@ -101,7 +101,7 @@ func main() {
 		return
 	}
 
-  for i, element := range addrs {
+  for _, element := range addrs {
     element += ":" + PORT
   }
 
