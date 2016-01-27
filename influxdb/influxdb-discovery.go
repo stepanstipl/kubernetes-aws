@@ -37,7 +37,7 @@ func flattenSubsets(subsets []api.EndpointSubset) []string {
 	ips := []string{}
 	for _, ss := range subsets {
 		for _, addr := range ss.Addresses {
-      ips = append(ips, addr.IP.String())
+      ips = append(ips, addr.IP)
 		}
 	}
 	return ips
