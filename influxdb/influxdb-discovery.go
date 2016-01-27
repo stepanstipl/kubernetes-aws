@@ -15,6 +15,7 @@ import (
 
 const WAITFOR_MAX = 3
 const WAITFOR_MIN = 1
+const PORT = "8088"
 
 func getMyIP() string {
   addrs, err := net.InterfaceAddrs()
@@ -100,6 +101,10 @@ func main() {
 		return
 	}
 
+  for i, element := range addrs {
+    element += ":" + PORT
+  }
+
 	glog.Infof("Endpoints = %s", addrs)
-	fmt.Printf("%s", strings.Join(addrs, ", "))
+	fmt.Printf("%s", strings.Join(addrs, ","))
 }

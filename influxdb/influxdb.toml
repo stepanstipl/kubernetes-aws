@@ -3,7 +3,6 @@
 
 [meta]
   dir = "/srv/influxdb/meta"
-  hostname = "localhost"
   bind-address = ":8088"
   retention-autocreate = true
   election-timeout = "1s"
