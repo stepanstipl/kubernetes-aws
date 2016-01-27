@@ -107,5 +107,5 @@ func main() {
   }
 
 	glog.Infof("Endpoints = %s", addrs)
-	fmt.Printf("%s", strings.Join(addrs, ","))
+	fmt.Printf("%s", strings.Join(addrs, "\t"))
 }
