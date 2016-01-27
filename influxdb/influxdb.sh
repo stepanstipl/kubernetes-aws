@@ -6,9 +6,9 @@ JOIN=$(/influxdb-discovery)
 
 K8S_IP=${K8S_IP:?'$K8S_IP is not set'}
 
-export META_BIND_ADDRESS="${POD_IP}:8088"
-export META_HTTP_BIND_ADDRESS="${POD_IP}:8091"
-export ADMIN_BIND_ADDRESS="${POD_IP}:9083"
-export HTTP_BIND_ADDRESS="${POD_IP}:9086"
+export INFLUXDB_META_BIND_ADDRESS="${POD_IP}:8088"
+export INFLUXDB_META_HTTP_BIND_ADDRESS="${POD_IP}:8091"
+export INFLUXDB_ADMIN_BIND_ADDRESS="${POD_IP}:8083"
+export INFLUXDB_HTTP_BIND_ADDRESS="${POD_IP}:8086"
 
 /influxd --config /etc/influxdb.toml $JOIN
