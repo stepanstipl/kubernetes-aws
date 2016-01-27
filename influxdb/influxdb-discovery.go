@@ -15,7 +15,7 @@ import (
 
 const WAITFOR_MAX = 3
 const WAITFOR_MIN = 1
-const PORT = "8088"
+const PORT = "8091"
 
 func getMyIP() string {
   addrs, err := net.InterfaceAddrs()
