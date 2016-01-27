@@ -101,8 +101,8 @@ func main() {
 		return
 	}
 
-  for _, element := range addrs {
-    element += ":" + PORT
+  for i := range addrs {
+    addrs[i] += ":" + PORT
   }
 
 	glog.Infof("Endpoints = %s", addrs)
