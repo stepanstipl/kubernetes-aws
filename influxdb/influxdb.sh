@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh +x
 APP='influxdb'
 
 JOIN=$(/influxdb-discovery)
