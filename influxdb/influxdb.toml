@@ -3,8 +3,6 @@
 
 [meta]
   dir = "/srv/influxdb/meta"
-  bind-address = ":8088"
-  http-bind-address = ":8091"
   retention-autocreate = true
   election-timeout = "1s"
   heartbeat-timeout = "1s"
@@ -55,7 +53,6 @@
 
 [admin]
   enabled = true
-  bind-address = ":8083"
   https-enabled = false
   https-certificate = "/etc/ssl/influxdb.pem"
 
@@ -64,7 +61,6 @@
 
 [http]
   enabled = true
-  bind-address = ":8086"
   auth-enabled = false
   log-enabled = true
   write-tracing = false
