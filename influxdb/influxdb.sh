@@ -4,7 +4,7 @@ APP='influxdb'
 JOIN=$(/influxdb-discovery)
 [[ -n "${JOIN}" ]] && JOIN="-join ${JOIN}"
 
-K8S_IP=${K8S_IP:?'$K8S_IP is not set'}
+POD_IP=${POD_IP:?'$K8S_IP is not set'}
 
 export INFLUXDB_META_BIND_ADDRESS="${POD_IP}:8088"
 export INFLUXDB_META_HTTP_BIND_ADDRESS="${POD_IP}:8091"
