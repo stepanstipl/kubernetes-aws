@@ -10,7 +10,7 @@ COPY _artifacts/types.db /usr/share/collectd/
 COPY influxdb.sh /
 COPY influxdb.toml /etc/influxdb.toml
 
-RUN opkg install curl
+RUN opkg-install curl
 
 # api
 EXPOSE 8086
