@@ -12,7 +12,8 @@ PEER_PROTO='http'
 
 JOIN=""
 CHECK_PEERS=${CHECK_PEERS:-'true'}
-MAX_WAIT=60
+# Seconds, This will be multiplied by 10
+MAX_WAIT=10
 
 POD_IP=${POD_IP:?'$K8S_IP is not set'}
 
@@ -20,6 +21,11 @@ POD_IP=${POD_IP:?'$K8S_IP is not set'}
 PEERS=$(/influxdb-discovery)
 
 HEALTHY_PEERS=""
+
+# Kind of rely that 10s difference is enough to start a cluster,
+# TODO maybe do some magic around etcd and/or locking
+wait_for=$((RANDOM%=$MAX_WAIT))
+wait_for=$((wait_for*10))
 
 # Now try to read servers from any peer
 count=0
@@ -30,8 +36,6 @@ while [[ $count -lt 3 && -n "$PEERS" ]]; do
     [[ -n "$servers" ]] && break
   done
 
-  wait_for=$RANDOM
-  let "wait_for %= $MAX_WAIT"
   sleep $wait_for
   count=$((count+1))
 done
