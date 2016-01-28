@@ -36,6 +36,7 @@ while [[ $count -lt 3 && -n "$PEERS" ]]; do
     [[ -n "$servers" ]] && break
   done
 
+  [[ -n "$servers" ]] && break
   sleep $wait_for
   count=$((count+1))
 done
