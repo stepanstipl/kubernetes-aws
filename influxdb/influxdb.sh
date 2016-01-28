@@ -1,4 +1,8 @@
-#!/bin/sh -x
+#!/bin/sh
+
+# Turn on debugging potentially
+[[ "$DEBUG"=='true' ]] && set -x
+
 APP='influxdb'
 
 CURL_OPTS=${CURL_OPTS:-'-s -f -w "%{http_code}" -o /dev/null --connect-timeout 30'}
@@ -29,7 +33,7 @@ while [[ $count -lt 3 && -n "$PEERS" ]]; do
   wait_for=$RANDOM
   let "wait_for %= $MAX_WAIT"
   sleep $wait_for
-  count=$((a+1))
+  count=$((count+1))
 done
 
 # Check that all peers are healthy
