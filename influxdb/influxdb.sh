@@ -29,6 +29,7 @@ while [[ $count -lt 3 && -n "$PEERS" ]]; do
   wait_for=$RANDOM
   let "wait_for %= $MAX_WAIT"
   sleep $wait_for
+  count=$((a+1))
 done
 
 # Check that all peers are healthy
