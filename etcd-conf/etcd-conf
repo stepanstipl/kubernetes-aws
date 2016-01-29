@@ -1,6 +1,8 @@
 #!/bin/bash
 APP='etcd-conf'
 
+[[ "$DEBUG" == 'true' ]] && set -x
+
 ETCD_ENV_FILE=${ETCD_ENV_FILE:-'/etc/etcd/etcd.env'}
 ETCD_DATA_DIR='/srv/etcd'
 

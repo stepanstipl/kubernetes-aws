@@ -3,8 +3,10 @@ MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY proxy.conf /etc/nginx/proxy.conf
 COPY nginx-proxy /
+
+COPY proxy-oauth.conf /tmp/
+COPY proxy.conf /tmp/
 
 EXPOSE 443
 

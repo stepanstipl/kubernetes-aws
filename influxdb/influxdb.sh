@@ -1,9 +1,8 @@
 #!/bin/sh
+APP='influxdb'
 
 # Turn on debugging potentially
-[[ "$DEBUG"=='true' ]] && set -x
-
-APP='influxdb'
+[[ "$DEBUG" == 'true' ]] && set -x
 
 CURL_OPTS=${CURL_OPTS:-'-s -f -w "%{http_code}" -o /dev/null --connect-timeout 30'}
 CURL="/usr/bin/curl ${CURL_OPTS}"

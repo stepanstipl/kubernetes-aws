@@ -1,6 +1,8 @@
 #!/bin/bash
 APP='kube-labels'
 
+[[ "$DEBUG" == 'true' ]] && set -x
+
 K8S_MASTER=${K8S_MASTER:?'$K8S_MASTER is not set'}
 K8S_POD=${K8S_POD:?'$K8S_POD is not set'}
 K8S_ROLE=${K8S_ROLE:?'$K8S_ROLE is not set'}

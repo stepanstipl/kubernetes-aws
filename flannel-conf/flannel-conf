@@ -1,6 +1,8 @@
 #!/bin/bash
 APP='flannel-conf'
 
+[[ "$DEBUG" == 'true' ]] && set -x
+
 K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?"${APP}: \$K8S_CLUSTER_ID is not set"}
 K8S_S3_BUCKET=${K8S_S3_BUCKET:?"${APP}:\$K8S_S3_BUCKET is not set"}
 

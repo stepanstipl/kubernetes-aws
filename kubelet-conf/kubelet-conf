@@ -1,6 +1,8 @@
 #!/bin/bash
 APP='kubelet-conf'
 
+[[ "$DEBUG" == 'true' ]] && set -x
+
 K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
 K8S_MASTER=${K8S_MASTER:?'$K8S_MASTER is not set'}
 K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
