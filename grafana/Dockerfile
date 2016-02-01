@@ -19,7 +19,7 @@ RUN export GOPATH=/go && \
     npm uninstall -g grunt-cli && \
     npm cache clear && \
     mkdir -p /usr/share/grafana/bin && \
-    cp -a /go/src/github.com/grafana/grafana/grafana /usr/share/grafana/bin/grafana-server && \
+    cp -a /go/src/github.com/grafana/grafana/grafana /usr/sbin/grafana-server && \
     cp -ra /go/src/github.com/grafana/grafana/public_gen /usr/share/grafana && \
     mv /usr/share/grafana/public_gen /usr/share/grafana/public && \
     cp -ra /go/src/github.com/grafana/grafana/conf /etc/grafana && \
