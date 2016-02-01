@@ -22,7 +22,7 @@ RUN export GOPATH=/go && \
     cp -a /go/src/github.com/grafana/grafana/grafana /usr/sbin/grafana-server && \
     cp -ra /go/src/github.com/grafana/grafana/public_gen /usr/share/grafana && \
     mv /usr/share/grafana/public_gen /usr/share/grafana/public && \
-    cp -ra /go/src/github.com/grafana/grafana/conf /etc/grafana && \
+    cp -ra /go/src/github.com/grafana/grafana/conf /usr/share/grafana/conf && \
     go clean -i -r && \
     apk del --purge build-base nodejs go git mercurial && \
     rm -rf /go /tmp/* /var/cache/apk/* /root/.n* /usr/local/bin/phantomjs
