@@ -13,7 +13,8 @@ PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
 KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
 KUBECONFIGS='kubelet.kubeconfig'
 
-DOWNLOAD_FILES="ca.pem client.pem client-key.pem kubelet"
+DOWNLOAD_FILES="kubelet"
+DOWNLOAD_CERTS="ca.pem client.pem client-key.pem"
 MANIFESTS="kube-labels.yaml"
 
 K8S_PATH='/srv/kubernetes'
@@ -29,7 +30,7 @@ if [[ "$K8S_ROLE" == 'master' ]]; then
 
   KUBECONFIGS=$(ls '/kubeconfigs')
   MANIFESTS=$(ls '/manifests');
-  DOWNLOAD_FILES="$DOWNLOAD_FILES kubernetes.pem kubernetes-key.pem"
+  DOWNLOAD_CERTS="$DOWNLOAD_CERTS kubernetes.pem kubernetes-key.pem"
 
   # Touch log files, so they exists
   touch /var/log/kube-apiserver.log
@@ -54,7 +55,15 @@ for i in $KUBECONFIGS; do
 done
 
 # Get certificates
-echo "${APP}: Downloading files"
+echo "${APP}: Downloading certificates"
+for i in $DOWNLOAD_CERTS; do
+  echo "${APP}: ${i}"
+  [[ -f "${K8S_PATH}/$i" ]] || aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "certs/${i}" "${K8S_PATH}/${i}"
+  [[ -f "${K8S_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i}"; exit 1; }
+done
+
+# Get other files - for now only kubelet
+echo "${APP}: Downloading kubelet"
 for i in $DOWNLOAD_FILES; do
   echo "${APP}: ${i}"
   [[ -f "${K8S_PATH}/$i" ]] || aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${K8S_PATH}/${i}"

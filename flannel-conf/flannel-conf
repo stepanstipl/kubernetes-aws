@@ -39,7 +39,7 @@ CURL="/usr/bin/curl ${CURL_OPTS}"
 echo "${APP}: Downloading certificates"
 for i in $CERTIFICATES; do
   echo "${APP}: ${i}"
-  [[ -f "${FLANNEL_PATH}/$i" ]] || (/usr/bin/aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${FLANNEL_PATH}/${i}")
+  [[ -f "${FLANNEL_PATH}/$i" ]] || (/usr/bin/aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "certs/${i}" "${FLANNEL_PATH}/${i}")
   [[ -f "${FLANNEL_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i} certificate"; exit 1; }
 done
 
