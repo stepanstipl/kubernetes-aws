@@ -21,7 +21,7 @@ echo "${APP}: Downloading certificates"
 
 for i in ${CERTIFICATES}; do
   echo "${APP}: ${i}"
-  [[ -f "${K8S_PATH}/$i" ]] || aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "${i}" "${K8S_PATH}/${i}"
+  [[ -f "${K8S_PATH}/$i" ]] || aws s3api get-object --bucket "${K8S_S3_BUCKET}" --key "certs/${i}" "${K8S_PATH}/${i}"
   [[ -f "${K8S_PATH}/$i" ]] || { echo "${APP}: Error - failed to download ${i} certificate"; exit 1; }
 done
 
