@@ -59,7 +59,7 @@ func main() {
 	var influxdb *api.Service
   // Wait for the service to come up
 	for t := time.Now(); time.Since(t) < WAITFOR_MAX*time.Second; time.Sleep(10 * time.Second) {
-    glog.Infof("Waiting for service moniroting-influxdb %s", time.Since(t))
+    glog.Infof("Waiting for service monitoring-influxdb %s", time.Since(t))
 		influxdb, err = c.Services(api.NamespaceSystem).Get("monitoring-influxdb")
 		if err == nil {
 			break
