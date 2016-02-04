@@ -7,6 +7,7 @@ import (
 	"time"
   "net"
   "math/rand"
+  "os"
 
 	"github.com/golang/glog"
 	"k8s.io/kubernetes/pkg/api"
@@ -15,7 +16,6 @@ import (
 
 const WAITFOR_MAX = 300 // 5 mins
 const WAITFOR_MIN = 30 // 30 secs
-const PORT = "8091"
 
 func getMyIP() string {
   addrs, err := net.InterfaceAddrs()
@@ -51,6 +51,11 @@ func main() {
 
   myip := getMyIP()
 
+  serviceName := "monitoring-influxdb"
+  if os.Getenv("K8S_SVC") != "" {
+	  serviceName = os.Getenv("K8S_SVC")
+  }
+
 	c, err := client.NewInCluster()
 	if err != nil {
 		glog.Fatalf("Failed to make client: %v", err)
@@ -60,14 +65,14 @@ func main() {
   // Wait for the service to come up
 	for t := time.Now(); time.Since(t) < WAITFOR_MAX*time.Second; time.Sleep(10 * time.Second) {
     glog.Infof("Waiting for service monitoring-influxdb %s", time.Since(t))
-		influxdb, err = c.Services(api.NamespaceSystem).Get("monitoring-influxdb")
+		influxdb, err = c.Services(api.NamespaceSystem).Get(serviceName)
 		if err == nil {
 			break
 		}
 	}
 
 	if influxdb == nil {
-		glog.Warningf("Failed to find the monitoring-influxdb service: %v", err)
+		glog.Warningf("Failed to find the %s service: %v", serviceName, err)
 		return
 	}
 
@@ -78,7 +83,7 @@ func main() {
   wait_for := rand.Intn(WAITFOR_MAX-WAITFOR_MIN)+WAITFOR_MIN
 	for t := time.Now(); time.Since(t) < time.Duration(wait_for) * time.Second; time.Sleep(10 * time.Second) {
     glog.Infof("Waiting for service endpoints %s", time.Since(t))
-		endpoints, err = c.Endpoints(api.NamespaceSystem).Get("monitoring-influxdb")
+		endpoints, err = c.Endpoints(api.NamespaceSystem).Get(serviceName)
 		if err != nil {
 			continue
 		}
@@ -101,10 +106,6 @@ func main() {
 		glog.Warningf("Error finding endpoints: %v", err)
 		return
 	}
-
-  for i := range addrs {
-    addrs[i] += ":" + PORT
-  }
 
 	glog.Infof("Endpoints = %s", addrs)
 	fmt.Printf("%s", strings.Join(addrs, "\t"))

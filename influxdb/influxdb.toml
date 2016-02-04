@@ -1,7 +1,7 @@
-[reporting]
-  reporting-disabled = true
+reporting-disabled = true
 
 [meta]
+  enabled = true
   dir = "/srv/influxdb/meta"
   retention-autocreate = true
   election-timeout = "1s"
@@ -13,6 +13,7 @@
   logging-enabled = true
 
 [data]
+  enabled = true
   dir = "/srv/influxdb/data"
   max-wal-size = 104857600
   wal-flush-interval = "10m0s"

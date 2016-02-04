@@ -4,58 +4,32 @@ APP='influxdb'
 # Turn on debugging potentially
 [[ "$DEBUG" == 'true' ]] && set -x
 
-CURL_OPTS=${CURL_OPTS:-'-s -f -w "%{http_code}" -o /dev/null --connect-timeout 30'}
-CURL="/usr/bin/curl ${CURL_OPTS}"
+PEER_PORT=${PEER_PORT:-'8091'}
 
-PEER_PROTO='http'
-
-JOIN=""
-CHECK_PEERS=${CHECK_PEERS:-'true'}
-# Seconds, This will be multiplied by 10
-MAX_WAIT=10
+JOIN=${JOIN:-'false'}
 
 POD_IP=${POD_IP:?'$K8S_IP is not set'}
 
-# Get IPs form Kubernetes
-PEERS=$(/influxdb-discovery)
 
-HEALTHY_PEERS=""
+if [[ "$JOIN" == "true" ]]; then
+  # Get IPs form Kubernetes
+  PEERS=$(/influxdb-discovery)
 
-# Kind of rely that 10s difference is enough to start a cluster,
-# TODO maybe do some magic around etcd and/or locking
-wait_for=$((RANDOM%=$MAX_WAIT))
-wait_for=$((wait_for*10))
+  JOIN=""
 
-# Now try to read servers from any peer
-count=0
-while [[ $count -lt 3 && -n "$PEERS" ]]; do
-  for peer in $PEERS; do
-    peer=$(echo $peer | cut -f1 -d":")
-    servers=$(/influx -host $peer -execute 'show servers' 2>/dev/null| grep 8091 | cut -f2)
-    [[ -n "$servers" ]] && break
+  # Constructs join list
+  for peer in ${PEERS}; do
+    [[ -n "${JOIN}" ]] && JOIN+=','
+    JOIN+="${peer}:${PEER_PORT}"
   done
 
-  [[ -n "$servers" ]] && break
-  sleep $wait_for
-  count=$((count+1))
-done
+  JOIN="-join ${JOIN}"
 
-# Check that all peers are healthy
-for peer in $servers; do
-  resp_code='200'
-  # If we're supposed to check peers, check them
-  [[ $CHECK_PEERS == 'true' ]] && resp_code=$($CURL "${PEER_PROTO}://${peer}/ping")
-
-  if [[ $resp_code == '200' ]]; then
-    [[ -n "${HEALTHY_PEERS}" ]] && HEALTHY_PEERS="${HEALTHY_PEERS},"
-    HEALTHY_PEERS="${HEALTHY_PEERS}${peer}"
-  fi
-done
-
-
-echo "${APP}: Found healthy peers: ${HEALTHY_PEERS}"
-[[ -n "${HEALTHY_PEERS}" ]] && JOIN="-join ${HEALTHY_PEERS}"
-
+  echo "${APP}: Found peers: ${PEERS}"
+else
+  JOIN=""
+  echo "${APP}: Initalizing new cluster, skipping peer search"
+fi
 
 export INFLUXDB_META_BIND_ADDRESS="${POD_IP}:8088"
 export INFLUXDB_META_HTTP_BIND_ADDRESS="${POD_IP}:8091"
