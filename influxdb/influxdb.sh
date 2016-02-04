@@ -19,8 +19,8 @@ if [[ "$JOIN" == "true" ]]; then
 
   # Constructs join list
   for peer in ${PEERS}; do
-    [[ -n "${JOIN}" ]] && JOIN+=','
-    JOIN+="${peer}:${PEER_PORT}"
+    [[ -n "${JOIN}" ]] && JOIN="${JOIN},"
+    JOIN="${JOIN}${peer}:${PEER_PORT}"
   done
 
   JOIN="-join ${JOIN}"
