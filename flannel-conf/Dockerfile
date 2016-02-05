@@ -2,7 +2,7 @@ FROM alpine:3.3
 MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
-ENV ETCD_VERSION 2.2.4
+ENV ETCD_VERSION 2.2.5
 
 RUN apk --update add python py-pip curl bash iptables \
       && pip install --upgrade awscli \
@@ -14,6 +14,6 @@ RUN curl -L  https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/e
       && cp /tmp/etcd-v${ETCD_VERSION}-linux-amd64/etcdctl / \
       && rm -rf /tmp/*
 
-COPY flannel-conf /flannel-conf
+COPY flannel-conf.sh /flannel-conf.sh
 
-ENTRYPOINT ["/flannel-conf"]
+ENTRYPOINT ["/flannel-conf.sh"]

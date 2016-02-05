@@ -1,9 +1,9 @@
 #!/bin/bash -x
 
 PROJECT='influxdb'
-INFLUXDB_VERSION='0.10.0-0.rc2'
+INFLUXDB_VERSION='0.10.0-0'
 INFLUXDB_PACKAGE="github.com/influxdb/influxdb"
-K8S_VERSION="1.1.7"
+K8S_VERSION="1.2.0-alpha.7"
 OUTPUT_DIR='/artifacts'
 
 

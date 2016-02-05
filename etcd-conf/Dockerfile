@@ -7,6 +7,6 @@ RUN apk --update add python py-pip curl bash jq \
       && apk del py-pip py-setuptools \
       && rm -rf /var/cache/apk/* /tmp/*
 
-COPY etcd-conf /etcd-conf
+COPY etcd-conf.sh /etcd-conf.sh
 
-ENTRYPOINT ["/etcd-conf"]
+ENTRYPOINT ["/etcd-conf.sh"]

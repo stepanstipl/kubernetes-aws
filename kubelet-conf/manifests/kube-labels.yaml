@@ -8,7 +8,7 @@ spec:
   restartPolicy: OnFailure
   containers:
     - name: kube-labels
-      image: quay.io/stepanstipl/kube-labels:latest
+      image: quay.io/stepanstipl/kube-labels:{{ KUBE_AWS_VERSION }}
       env:
         - name: K8S_POD
           valueFrom:
