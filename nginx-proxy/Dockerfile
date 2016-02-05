@@ -3,11 +3,11 @@ MAINTAINER Stepan Stipl
 # https://github.com/stepanstipl
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY nginx-proxy /
+COPY nginx-proxy.sh /
 
 COPY proxy-oauth.conf /tmp/
 COPY proxy.conf /tmp/
 
 EXPOSE 443
 
-CMD ["/nginx-proxy", "-g", "daemon off;"]
+CMD ["/nginx-proxy.sh", "-g", "daemon off;"]

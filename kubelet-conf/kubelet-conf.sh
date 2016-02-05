@@ -6,12 +6,8 @@ APP='kubelet-conf'
 K8S_CLUSTER_ID=${K8S_CLUSTER_ID:?'$K8S_CLUSTER_ID is not set'}
 K8S_MASTER=${K8S_MASTER:?'$K8S_MASTER is not set'}
 K8S_S3_BUCKET=${K8S_S3_BUCKET:?'$K8S_S3_BUCKET is not set'}
-
-MANIFESTS_PATH='/etc/kubernetes/manifests'
-PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
-
-KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
-KUBECONFIGS='kubelet.kubeconfig'
+K8S_VERSION=${K8S_VERSION:?'$K8S_VERSION is not set'}
+KUBE_AWS_VERSION=${KUBE_AWS_VERSION:="latest"}
 
 DOWNLOAD_FILES="kubelet"
 DOWNLOAD_CERTS="ca.pem client.pem client-key.pem"
@@ -19,13 +15,18 @@ MANIFESTS="kube-labels.yaml"
 
 K8S_PATH='/srv/kubernetes'
 
+MANIFESTS_PATH='/etc/kubernetes/manifests'
+PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
+
+KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
+KUBECONFIGS='kubelet.kubeconfig'
 
 if [[ "$K8S_ROLE" == 'master' ]]; then
 
   mkdir $PODMASTER_MANIFESTS_PATH
   for i in $(ls '/podmaster-manifests'); do
     echo "${APP}: Creating manifest ${PODMASTER_MANIFESTS_PATH}/${i}"
-    sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/podmaster-manifests/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
+    sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g;s@{{ KUBE_AWS_VERSION }}@${KUBE_AWS_VERSION}@g;s@{{ K8S_VERSION }}@${K8S_VERSION}@g" "/podmaster-manifests/${i}" > "${PODMASTER_MANIFESTS_PATH}/${i}"
   done
 
   KUBECONFIGS=$(ls '/kubeconfigs')
@@ -45,7 +46,7 @@ fi
 mkdir $MANIFESTS_PATH
 for i in $MANIFESTS; do
   echo "${APP}: Creating manifest ${MANIFESTS_PATH}/${i}"
-  sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
+  sed "s@{{ K8S_CLUSTER_ID }}@${K8S_CLUSTER_ID}@g;s@{{ K8S_MASTER }}@${K8S_MASTER}@g;s@{{ K8S_ROLE }}@${K8S_ROLE}@g;s@{{ KUBE_AWS_VERSION }}@${KUBE_AWS_VERSION}@g;s@{{ K8S_VERSION }}@${K8S_VERSION}@    g" "/manifests/${i}" > "${MANIFESTS_PATH}/${i}"
 done
 
 mkdir $KUBECONFIGS_PATH

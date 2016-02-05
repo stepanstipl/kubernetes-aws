@@ -14,6 +14,6 @@ COPY manifests /manifests/
 COPY podmaster-manifests /podmaster-manifests/
 COPY kubeconfigs /kubeconfigs/
 
-COPY kubelet-conf /
+COPY kubelet-conf.sh /
 
-ENTRYPOINT ["/kubelet-conf"]
+ENTRYPOINT ["/kubelet-conf.sh"]

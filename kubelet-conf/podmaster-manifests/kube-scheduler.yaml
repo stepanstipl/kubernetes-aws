@@ -7,7 +7,7 @@ spec:
   hostNetwork: true
   containers:
     - name: kube-scheduler
-      image: gcr.io/google_containers/hyperkube:v1.1.4
+      image: gcr.io/google_containers/hyperkube:v{{ K8S_VERSION }}
       command:
         - /bin/sh
         - -c
@@ -28,6 +28,12 @@ spec:
           readOnly: true
         - mountPath: /var/log/kube-scheduler.log
           name: logfile
+        - mountPath: /etc/ssl
+          name: etcssl
+          readOnly: true
+        - mountPath: /usr/share/ca-certificates
+          name: usrsharecacerts
+          readOnly: true
   volumes:
     - hostPath:
         path: /srv/kubernetes
@@ -35,3 +41,9 @@ spec:
     - hostPath:
         path: /var/log/kube-scheduler.log
       name: logfile
+    - hostPath:
+        path: /etc/ssl
+      name: etcssl
+    - hostPath:
+        path: /usr/share/ca-certificates
+      name: usrsharecacerts

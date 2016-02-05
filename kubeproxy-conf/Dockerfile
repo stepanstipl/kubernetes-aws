@@ -12,6 +12,6 @@ VOLUME /srv/kubernetes
 
 COPY kube-proxy.kubeconfig /
 
-COPY kubeproxy-conf /
+COPY kubeproxy-conf.sh /
 
-ENTRYPOINT ["/kubeproxy-conf"]
+ENTRYPOINT ["/kubeproxy-conf.sh"]

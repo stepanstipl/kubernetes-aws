@@ -5,6 +5,6 @@ MAINTAINER Stepan Stipl
 RUN apk --update add curl bash jq \
       && rm -rf /var/cache/apk/* /tmp/*
 
-COPY kube-labels /kube-labels
+COPY kube-labels.sh /kube-labels.sh
 
-ENTRYPOINT ["/kube-labels"]
+ENTRYPOINT ["/kube-labels.sh"]
