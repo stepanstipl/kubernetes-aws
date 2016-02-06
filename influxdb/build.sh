@@ -9,7 +9,7 @@ OUTPUT_DIR='/artifacts'
 
 # Get influxdb
 cd /tmp
-curl -s -L -o "/tmp/influxdb.tar.gz" "https://influxdb.s3.amazonaws.com/influxdb-${INFLUXDB_VERSION}_linux_amd64.tar.gz"
+curl -s -L -o "/tmp/influxdb.tar.gz" "https://influxdb.s3.amazonaws.com/influxdb-v${INFLUXDB_VERSION}_linux_amd64.tar.gz"
 [[ -f "/tmp/influxdb.tar.gz" ]] && tar xvzf /tmp/influxdb.tar.gz ./usr/bin/influxd ./usr/bin/influx
 
 cp -r ./usr/bin/influxd ./usr/bin/influx "${OUTPUT_DIR}/"
