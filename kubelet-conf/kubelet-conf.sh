@@ -15,6 +15,11 @@ MANIFESTS="kube-labels.yaml"
 
 K8S_PATH='/srv/kubernetes'
 
+MANIFESTS_PATH='/etc/kubernetes/manifests'
+PODMASTER_MANIFESTS_PATH='/etc/kubernetes/podmaster'
+
+KUBECONFIGS_PATH='/srv/kubernetes/kubeconfigs'
+KUBECONFIGS='kubelet.kubeconfig'
 
 if [[ "$K8S_ROLE" == 'master' ]]; then
 
