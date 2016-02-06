@@ -6,13 +6,12 @@ INFLUXDB_PACKAGE="github.com/influxdb/influxdb"
 K8S_VERSION="1.2.0-alpha.7"
 OUTPUT_DIR='/artifacts'
 
-
 # Get influxdb
 cd /tmp
 curl -s -L -o "/tmp/influxdb.tar.gz" "https://influxdb.s3.amazonaws.com/influxdb-${INFLUXDB_VERSION}_linux_amd64.tar.gz"
-[[ -f "/tmp/influxdb.tar.gz" ]] && tar xvzf /tmp/influxdb.tar.gz ./usr/bin/influxd ./usr/bin/influx
+[[ -f "/tmp/influxdb.tar.gz" ]] && tar xvzf ./influxdb.tar.gz "./influxdb-${INFLUXDB_VERSION}/usr/bin/influxd" "./influxdb-${INFLUXDB_VERSION}/usr/bin/influx"
 
-cp -r ./usr/bin/influxd ./usr/bin/influx "${OUTPUT_DIR}/"
+cp "./influxdb-${INFLUXDB_VERSION}/usr/bin/influxd" "./influxdb-${INFLUXDB_VERSION}/usr/bin/influx" "${OUTPUT_DIR}/"
 
 # Needed for collectd
 wget -O "${OUTPUT_DIR}/types.db" "https://raw.githubusercontent.com/collectd/collectd/master/src/types.db"

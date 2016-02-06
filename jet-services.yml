@@ -3,16 +3,11 @@ influxdb_compile:
     name: influxdb-compile
     dockerfile_path: Dockerfile.compile
     path: influxdb
-  volumes_from:
-    - influxdb_data
   volumes:
     - ./influxdb:/source
+    - ./influxdb/_artifacts:/artifacts
 influxdb_deploy:
   build:
     image: quay.io/stepanstipl/influxdb
     dockerfile_path: Dockerfile
     path: influxdb
-influxdb_data:
-  image: tianon/true
-  volumes:
-    - ./influxdb/_artifacts:/artifacts
