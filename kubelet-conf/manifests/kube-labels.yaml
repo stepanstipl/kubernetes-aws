@@ -6,6 +6,7 @@ metadata:
 spec:
   hostNework: true
   restartPolicy: OnFailure
+  dnsPolicy: Default
   containers:
     - name: kube-labels
       image: quay.io/stepanstipl/kube-labels:{{ KUBE_AWS_VERSION }}
