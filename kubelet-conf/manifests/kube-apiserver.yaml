@@ -40,6 +40,9 @@ spec:
         - mountPath: /etc/ssl
           name: etcssl
           readOnly: true
+        - mountPath: /usr/share/ca-certificates
+          name: usrsharecacerts
+          readOnly: true
   volumes:
     - hostPath:
         path: /srv/kubernetes
@@ -50,3 +53,6 @@ spec:
     - hostPath:
         path: /etc/ssl
       name: etcssl
+    - hostPath:
+        path: /usr/share/ca-certificates
+      name: usrsharecacerts
