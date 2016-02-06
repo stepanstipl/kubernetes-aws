@@ -37,6 +37,9 @@ spec:
           readOnly: true
         - mountPath: /var/log/kube-apiserver.log
           name: logfile
+        - mountPath: /etc/ssl
+          name: etcssl
+          readOnly: true
   volumes:
     - hostPath:
         path: /srv/kubernetes
@@ -44,3 +47,6 @@ spec:
     - hostPath:
         path: /var/log/kube-apiserver.log
       name: logfile
+    - hostPath:
+        path: /etc/ssl
+      name: etcssl
