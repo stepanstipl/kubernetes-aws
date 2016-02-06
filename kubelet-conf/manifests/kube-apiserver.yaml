@@ -15,7 +15,6 @@ spec:
           --insecure-bind-address=127.0.0.1 --insecure-port=8080
           --address=0.0.0.0 --secure-port=443
           --cloud-provider=aws
-          --cluster-name={{ K8S_CLUSTER_ID }}
           --etcd-servers=http://127.0.0.1:2379
           --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
           --runtime-config=extensions/v1beta1/deployments=true,extensions/v1beta1/daemonsets=true
