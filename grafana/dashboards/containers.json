@@ -77,8 +77,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/limit_bytes_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"memory/limit_bytes_gauge\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
+                "measurement": "memory/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"memory/limit\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
                 "refId": "A",
                 "tags": [
                   {
@@ -115,8 +115,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/usage_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/usage_bytes_gauge\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
+                "measurement": "memory/usage",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/usage\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
                 "refId": "B",
                 "tags": [
                   {
@@ -153,8 +153,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/working_set_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set_bytes_gauge\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
+                "measurement": "memory/working_set",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
                 "refId": "C",
                 "tags": [
                   {
@@ -263,8 +263,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "cpu/limit_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit_gauge\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
+                "measurement": "cpu/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval) fill(null)",
                 "refId": "A",
                 "tags": [
                   {
@@ -288,7 +288,7 @@
               },
               {
                 "alias": "Usage",
-                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage_ns_cumulative\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval)",
+                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage\" WHERE \"container_name\" =~ /$container$/ AND \"pod_name\" =~ /$pod$/ AND \"pod_namespace\" =~ /$namespace$/ AND $timeFilter GROUP BY time($interval)",
                 "rawQuery": true,
                 "refId": "B",
                 "tags": []
@@ -368,7 +368,7 @@
               "selected": true
             }
           ],
-          "query": "SHOW TAG VALUES FROM \"uptime_ms_cumulative\" WITH KEY = \"pod_namespace\"",
+          "query": "SHOW TAG VALUES FROM \"uptime\" WITH KEY = \"pod_namespace\"",
           "refresh": true,
           "refresh_on_load": false,
           "regex": "",
@@ -392,7 +392,7 @@
               "selected": true
             }
           ],
-          "query": "SHOW TAG VALUES FROM \"uptime_ms_cumulative\" WITH KEY = \"pod_name\" WHERE pod_namespace =~ /$namespace$/",
+          "query": "SHOW TAG VALUES FROM \"uptime\" WITH KEY = \"pod_name\" WHERE pod_namespace =~ /$namespace$/",
           "refresh": true,
           "refresh_on_load": true,
           "regex": "",
@@ -416,7 +416,7 @@
               "selected": true
             }
           ],
-          "query": "SHOW TAG VALUES FROM \"uptime_ms_cumulative\" WITH KEY = \"container_name\" WHERE pod_name =~ /$pod$/ and \"pod_namespace\" =~ /$namespace$/",
+          "query": "SHOW TAG VALUES FROM \"uptime\" WITH KEY = \"container_name\" WHERE pod_name =~ /$pod$/ and \"pod_namespace\" =~ /$namespace$/",
           "refresh": true,
           "refresh_on_load": true,
           "regex": "",

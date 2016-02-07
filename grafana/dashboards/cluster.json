@@ -95,8 +95,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/limit_bytes_gauge",
-                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/limit_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/limit",
+                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/limit\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "A",
                 "tags": [
                   {
@@ -119,8 +119,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/usage_bytes_gauge",
-                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/usage_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/usage",
+                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/usage\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "B",
                 "tags": [
                   {
@@ -143,8 +143,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/working_set_bytes_gauge",
-                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/working_set_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/working_set",
+                "query": "SELECT sum(\"value\") AS \"value\" FROM \"memory/working_set\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "C",
                 "tags": [
                   {
@@ -240,8 +240,8 @@
                     "type": "tag"
                   }
                 ],
-                "measurement": "memory/limit_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/limit_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "measurement": "memory/limit",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/limit\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "refId": "A",
                 "tags": [
                   {
@@ -268,8 +268,8 @@
                     "type": "tag"
                   }
                 ],
-                "measurement": "memory/working_set_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "measurement": "memory/working_set",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "refId": "B",
                 "tags": [
                   {
@@ -364,8 +364,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/limit_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/limit_bytes_gauge\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/limit",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/limit\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "A",
                 "tags": [
                   {
@@ -393,8 +393,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/usage_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/usage_bytes_gauge\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/usage",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/usage\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "B",
                 "tags": [
                   {
@@ -422,8 +422,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "memory/working_set_bytes_gauge",
-                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set_bytes_gauge\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "memory/working_set",
+                "query": "SELECT max(\"value\") AS \"value\" FROM \"memory/working_set\" WHERE \"hostname\" =~ /$node/ AND \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "C",
                 "tags": [
                   {
@@ -526,8 +526,8 @@
                     "type": "tag"
                   }
                 ],
-                "measurement": "cpu/limit_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "measurement": "cpu/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "refId": "A",
                 "tags": [
                   {
@@ -538,7 +538,7 @@
               },
               {
                 "alias": "Usage {$tag_hostname}",
-                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage_ns_cumulative\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "rawQuery": true,
                 "refId": "B",
                 "target": ""
@@ -629,8 +629,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "cpu/limit_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit_gauge\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "measurement": "cpu/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"cpu/limit\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "refId": "A",
                 "tags": [
                   {
@@ -646,7 +646,7 @@
               },
               {
                 "alias": "Usage",
-                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage_ns_cumulative\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "query": "SELECT non_negative_derivative(max(value),1u) FROM \"cpu/usage\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "rawQuery": true,
                 "refId": "B",
                 "target": ""
@@ -734,8 +734,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "filesystem/limit_bytes_gauge",
-                "query": "SELECT sum(\"value\") AS \"value\" FROM \"filesystem/limit_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "filesystem/limit",
+                "query": "SELECT sum(\"value\") AS \"value\" FROM \"filesystem/limit\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "A",
                 "tags": [
                   {
@@ -758,8 +758,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "filesystem/usage_bytes_gauge",
-                "query": "SELECT sum(\"value\") AS \"value\" FROM \"filesystem/usage_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
+                "measurement": "filesystem/usage",
+                "query": "SELECT sum(\"value\") AS \"value\" FROM \"filesystem/usage\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval)",
                 "refId": "B",
                 "tags": [
                   {
@@ -855,8 +855,8 @@
                     "type": "tag"
                   }
                 ],
-                "measurement": "filesystem/limit_bytes_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/limit_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "measurement": "filesystem/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/limit\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "refId": "A",
                 "tags": [
                   {
@@ -883,8 +883,8 @@
                     "type": "tag"
                   }
                 ],
-                "measurement": "filesystem/usage_bytes_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/usage_bytes_gauge\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "measurement": "filesystem/usage",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/usage\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "refId": "B",
                 "tags": [
                   {
@@ -979,8 +979,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "filesystem/limit_bytes_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/limit_bytes_gauge\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "measurement": "filesystem/limit",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/limit\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "refId": "A",
                 "tags": [
                   {
@@ -1008,8 +1008,8 @@
                     "type": "time"
                   }
                 ],
-                "measurement": "filesystem/usage_bytes_gauge",
-                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/usage_bytes_gauge\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "measurement": "filesystem/usage",
+                "query": "SELECT last(\"value\") AS \"value\" FROM \"filesystem/usage\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "refId": "B",
                 "tags": [
                   {
@@ -1099,14 +1099,14 @@
             "targets": [
               {
                 "alias": "Tx {$tag_hostname}",
-                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/tx_bytes_cumulative\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/tx\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "rawQuery": true,
                 "refId": "A",
                 "target": ""
               },
               {
                 "alias": "Rx {$tag_hostname}",
-                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/rx_bytes_cumulative\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
+                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/rx\" WHERE \"container_name\" = 'machine' AND $timeFilter GROUP BY time($interval), \"hostname\"",
                 "rawQuery": true,
                 "refId": "B",
                 "target": ""
@@ -1185,14 +1185,14 @@
             "targets": [
               {
                 "alias": "Tx",
-                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/tx_bytes_cumulative\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/tx\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "rawQuery": true,
                 "refId": "A",
                 "target": ""
               },
               {
                 "alias": "Rx",
-                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/rx_bytes_cumulative\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
+                "query": "SELECT non_negative_derivative(max(value),1s) FROM \"network/rx\" WHERE \"container_name\" = 'machine' AND \"hostname\" =~ /$node/ AND $timeFilter GROUP BY time($interval)",
                 "rawQuery": true,
                 "refId": "B",
                 "target": ""
@@ -1273,7 +1273,7 @@
               "selected": true
             }
           ],
-          "query": "SHOW TAG VALUES FROM \"uptime_ms_cumulative\" WITH KEY = \"hostname\"",
+          "query": "SHOW TAG VALUES FROM \"uptime\" WITH KEY = \"hostname\"",
           "refresh": true,
           "refresh_on_load": true,
           "regex": "",
