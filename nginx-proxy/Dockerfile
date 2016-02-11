@@ -5,7 +5,6 @@ MAINTAINER Stepan Stipl
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx-proxy.sh /
 
-COPY proxy-oauth.conf /tmp/
 COPY proxy.conf /tmp/
 
 EXPOSE 443
