@@ -90,8 +90,8 @@ OAUTH_AUTH_REQUEST="${OAUTH_AUTH_REQUEST//$NL/\\n}"
 sed "s@{{ NGINX_PROXY_PASS }}@${NGINX_PROXY_PASS}@g; \
      s@{{ NGINX_SERVER_NAME }}@${NGINX_SERVER_NAME}@g; \
      s@{{ READ_ONLY }}@${READ_ONLY}@g; \
-     s@{{ OAUTH_PROXY_PASS }}@${OAUTH_PROXY_PASS}@g; \
      s@{{ OAUTH_LOCATION }}@${OAUTH_LOCATION}@g; \
-     s@{{ OAUTH_AUTH_REQUEST }}@${OAUTH_AUTH_REQUEST}@g" "/tmp/${PROXY_TEMPLATE}" > /etc/nginx/proxy.conf
+     s@{{ OAUTH_AUTH_REQUEST }}@${OAUTH_AUTH_REQUEST}@g; \
+     s@{{ OAUTH_PROXY_PASS }}@${OAUTH_PROXY_PASS}@g;" "/tmp/${PROXY_TEMPLATE}" > /etc/nginx/proxy.conf
 
 nginx "$@"
