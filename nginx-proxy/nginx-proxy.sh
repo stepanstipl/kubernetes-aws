@@ -61,7 +61,7 @@ elif [[ "$ENABLE_READ_ONLY" == 'kibana' ]]; then
             set $posting 1;
         }
 
-        if ( $request_uri ~ ^/(.+)/(_search|_mget|_msearch)(.*)$ ){
+        if ( $request_uri ~ ^/(.+)/(_search|_mget|_msearch|\.kibana/__kibanaQueryValidator/_validate/query)(.*)$ ){
             set $posting "${posting}1";
         }
 
