@@ -1,7 +1,7 @@
 FROM alpine:edge
 MAINTAINER Stepan Stipl
 
-ENV INFLUX_VERSION v0.10.1
+ENV INFLUX_VERSION v0.10.2
 ENV DISCOVERY_VERSION 0.0.3
 ENV DISCOVERY_URL https://github.com/stepanstipl/kubernetes-utils/releases/download/$DISCOVERY_VERSION/influxdb-discovery.tar.gz
 
