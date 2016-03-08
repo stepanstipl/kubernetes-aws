@@ -17,6 +17,7 @@ spec:
           --master={{ K8S_MASTER }}
           --kubeconfig=/srv/kubernetes/kubeconfigs/kube-controller-manager.kubeconfig
           --service-account-private-key-file=/srv/kubernetes/kubernetes-key.pem
+          --root-ca-file=/srv/kubernetes/ca.pem
           --cloud-provider=aws
           --v=2 --logtostderr=true 1>>/var/log/kube-controller-manager.log 2>&1
       livenessProbe:
